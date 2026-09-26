@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⭐会员分类内容3</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 基础样式 */
+        body {
+            background-color: #FFF5F5; /* 淡粉白背景 */
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #555;
+            overflow-x: hidden; /* 防止水平滚动条 */
+        }
+
+        /* 作品容器 - 改为单列布局 */
+        .artwork-container {
+            max-width: 800px; /* 适当减小最大宽度以适应单列布局 */
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            padding: 20px;
+        }
+
+        /* 作品卡片 */
+        .artwork-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .artwork-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        /* 作品展示区域 - 增大高度 */
+        .artwork-display {
+            position: relative;
+            width: 100%;
+            height: 400px; /* 增大展示区域高度 */
+            overflow: hidden;
+        }
+
+        .artwork-media {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .artwork-card:hover .artwork-media {
+            transform: scale(1.05);
+        }
+
+        /* 视频容器样式 */
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .video-slider {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            overflow: hidden; /* 移除滚动条 */
+        }
+        
+        .video-slide {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            position: relative;
+        }
+        
+        .video-slide video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+        
+        .video-nav:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .video-prev {
+            left: 15px;
+        }
+        
+        .video-next {
+            right: 15px;
+        }
+        
+        .video-dots {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            z-index: 10;
+        }
+        
+        .video-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .video-dot.active {
+            background: rgba(255, 255, 255, 0.9);
+            transform: scale(1.2);
+        }
+
+        /* 作品信息 - 简化样式 */
+        .artwork-info {
+            padding: 15px;
+        }
+
+        .artwork-description {
+            font-size: 13px; /* 减小字体大小 */
+            line-height: 1.5;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        /* 按钮样式 */
+        .action-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .buy-btn {
+            background: linear-gradient(135deg, #6DD5A7, #f8db9d);
+            color: white;
+        }
+
+        .buy-btn:hover {
+            background: linear-gradient(135deg, #FF5A7A, #FF7D40);
+            box-shadow: 0 5px 15px rgba(255, 107, 136, 0.3);
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #6DD5A7, #4DC9A8);
+            color: white;
+        }
+
+        .download-btn:hover {
+            background: linear-gradient(135deg, #5EC89F, #3DBB96);
+            box-shadow: 0 5px 15px rgba(110, 213, 167, 0.3);
+        }
+        
+        /* 美化播放按钮 */
+        .play-btn {
+            background: linear-gradient(135deg, #FF5A7A, #FF7D40);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .play-btn:hover {
+            background: linear-gradient(135deg, #FF416C, #FF4B2B);
+            box-shadow: 0 5px 15px rgba(255, 107, 136, 0.3);
+        }
+        
+        .play-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+            transition: all 0.3s ease;
+        }
+        
+        .play-btn:hover::after {
+            left: 100%;
+        }
+        
+        .play-btn i {
+            margin-right: 8px;
+            transition: transform 0.3s ease;
+        }
+        
+        .play-btn:hover i {
+            transform: scale(1.2);
+        }
+
+/* 修改缩略图样式 */
+.thumbnail-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 60px;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.thumbnail-container:hover .play-icon {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* 全屏样式 */
+.fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.fullscreen-content {
+    position: relative;
+    width: 90%;
+    height: 90%;
+    max-width: 1200px;
+    max-height: 90vh;
+}
+
+.fullscreen-content video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .artwork-display {
+                height: 300px; /* 移动端适当减小高度 */
+            }
+            
+            .video-nav {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .play-icon {
+                font-size: 40px;
+            }
+        }
+
+        /* 支付弹窗样式 */
+        .pay-modal {
+          display: none;
+          position: fixed;
+          z-index: 1000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(3px);
+        }
+
+        .pay-modal-content {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 90%;
+          max-width: 400px;
+          background: white;
+          border-radius: 12px;
+          box-shadow: 0 5px 30px rgba(0, 0, 0, 0.2);
+          overflow: hidden;
+          animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+          from {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.9);
+          }
+          to {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+          }
+        }
+
+        .pay-modal-header {
+          padding: 20px;
+          border-bottom: 1px solid #f0f0f0;
+          text-align: center;
+          position: relative;
+        }
+
+        .pay-modal-title {
+          margin: 0;
+          font-size: 1.3rem;
+          color: #333;
+          font-weight: 600;
+        }
+
+        .pay-modal-close {
+          position: absolute;
+          right: 15px;
+          top: 15px;
+          font-size: 1.5rem;
+          color: #aaa;
+          background: none;
+          border: none;
+          cursor: pointer;
+          transition: color 0.2s;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .pay-modal-close:hover {
+          color: #333;
+          background-color: #f5f5f5;
+          border-radius: 50%;
+        }
+
+        .pay-modal-body {
+          padding: 25px 20px;
+        }
+
+        .pay-options {
+          display: flex;
+          flex-direction: column;
+          gap: 15px;
+        }
+
+        .pay-option-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 12px;
+          border: none;
+          border-radius: 8px;
+          font-size: 1rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .pay-option-btn.alipay {
+          background-color: #1677ff;
+          color: white;
+        }
+
+        .pay-option-btn.wxpay {
+          background-color: #07c160;
+          color: white;
+        }
+
+        .pay-option-btn:hover {
+          opacity: 0.9;
+          transform: translateY(-1px);
+        }
+
+        .pay-option-btn:active {
+          transform: translateY(0);
+        }
+
+        .pay-option-icon {
+          margin-right: 10px;
+          font-size: 1.2rem;
+        }
+    
+/* 添加在支付标题下方的提示 */
+.pay-notice {
+  margin-top: 1px;
+  color: #1677FF; /* 支付宝蓝色文字 */
+  font-size: 0.5rem;
+  font-weight: normal;
+  opacity: 0.8;
+}
+
+    </style>
+</head>
+<body>
+
+    <div class="artwork-container">
+        <!-- 作品将通过JS动态生成 -->
+    </div>
+
+<!-- 支付选择弹窗 -->
+<div id="payChoice" class="pay-modal">
+  <div class="pay-modal-content">
+    <div class="pay-modal-header">
+      <h3 class="pay-modal-title">选择支付方式</h3>
+      <div class="pay-notice">人民币转换美元略浮动</div> <!-- 提示语移到这里 -->
+      <button class="pay-modal-close" onclick="document.getElementById('payChoice').style.display='none'">
+        &times;
+      </button>
+    </div>
+    <div class="pay-modal-body">
+      <div id="payButtons" class="pay-options"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 全屏显示容器 -->
+<div id="fullscreenOverlay" class="fullscreen-overlay" style="display: none;">
+    <div class="fullscreen-content"></div>
+</div>
+
+    <script >
+
+        /*------------ 页面加载后获取并渲染作品列表 --------------*/
+        async function loadArtworks() {
+            const container = document.querySelector('.artwork-container');
+            
+            try {
+                console.log('[前端] 正在请求会员分类3数据...');
+                const response = await fetch('/api/feeds?category=3', {
+                    headers: { 'from': 'member' }
+                });
+
+                if (!response.ok) {
+                    const err = await response.json();
+                    throw new Error(err.error || `请求失败: ${response.status}`);
+                }
+
+                const artworkData = await response.json();
+                console.log('[前端] 接收到的数据:', artworkData);
+
+                const processedData = artworkData.map(artwork => {
+                    const validMedias = artwork.medias.filter(media => media.url && !media.url.includes('undefined'));
+                    return {
+                        ...artwork,
+                        medias: validMedias,
+                        timestamp: new Date(artwork.timestamp).getTime(),
+                        createdAt: new Date(artwork.createdAt).getTime()
+                    };
+                });
+
+                container.innerHTML = '';
+                processedData.forEach((artwork, index) => {
+                    console.log(`[渲染] 第 ${index + 1} 个作品:`, {
+                        id: artwork._id,
+                        title: artwork.title,
+                        mediaCount: artwork.medias.length
+                    });
+                    renderArtworkCard(artwork);
+                });
+
+                setupButtonEvents();
+                
+            } catch (error) {
+                console.error('[前端] 加载作品失败:', error);
+                showError(error.message);
+            }
+        }
+
+        /*------------ 渲染单个作品卡片 --------------*/
+        function renderArtworkCard(artwork) {
+            const container = document.querySelector('.artwork-container');
+            
+            const images = artwork.medias.filter(m => m.type === 'photo' && m.url);
+            const videos = artwork.medias.filter(m => m.type === 'video' && m.url);
+            
+            const card = document.createElement('div');
+            card.className = 'artwork-card';
+            card.dataset.id = artwork._id;
+
+            const isPurchasedById = localStorage.getItem(`purchased_${artwork._id}`) === 'true';
+            const isPurchasedByGroup = artwork.groupId && localStorage.getItem(`purchased_group_${artwork.groupId}`) === 'true';
+
+            card.dataset.purchased = isPurchasedById || isPurchasedByGroup;
+            card.dataset.videos = JSON.stringify(videos);
+            card.dataset.groupId = artwork.groupId || '';
+
+            card.innerHTML = `
+                <div class="artwork-display">
+                    ${renderMediaContent(artwork, images, videos)}
+                    ${artwork.price ? `<span class="price-tag">¥${artwork.price.toFixed(2)}</span>` : ''}
+                </div>
+                <div class="artwork-info">
+                    <h3 class="artwork-title">${artwork.title || '未命名作品'}</h3>
+                    <p class="artwork-description">${artwork.description || ''}</p>
+                    <div class="artwork-actions">
+                        ${renderActionButton(artwork)}
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(card);
+        }
+
+        /*------------ 渲染媒体内容 --------------*/
+        function renderMediaContent(artwork, images, videos) {
+            const isPurchased =
+                localStorage.getItem(`purchased_${artwork._id}`) === 'true' ||
+                (artwork.groupId && localStorage.getItem(`purchased_group_${artwork.groupId}`) === 'true');
+
+            if (isPurchased && videos.length > 0) {
+                // 已购买且有视频 - 渲染缩略图（延迟加载）
+                return renderVideoThumbnails(artwork, videos);
+            } else if (images.length > 0) {
+                const image = images[0];
+                return `
+                    <img class="artwork-media" 
+                        src="${image.url}" 
+                        alt="${artwork.title}"
+                        loading="lazy">
+                `;
+            } else {
+                return `
+                    <div class="media-placeholder">
+                        <i class="fas fa-image"></i>
+                        <p>暂无预览</p>
+                    </div>
+                `;
+            }
+        }
+
+        /*------------ 渲染视频缩略图（延迟加载） --------------*/
+        function renderVideoThumbnails(artwork, videos) {
+            if (videos.length === 1) {
+                // 单个视频
+                const video = videos[0];
+                return `
+                    <div class="video-container">
+                        <div class="thumbnail-container">
+                            <img class="thumbnail" src="${video.thumbnail || getDefaultThumbnail()}" 
+                                 alt="${artwork.title}" data-video-url="${video.url}">
+                            <i class="fas fa-play play-icon"></i>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // 多个视频 - 创建滑动容器
+                let slidesHTML = videos.map((video, index) => `
+                    <div class="video-slide" data-index="${index}">
+                        <div class="thumbnail-container">
+                            <img class="thumbnail" src="${video.thumbnail || getDefaultThumbnail()}" 
+                                 alt="${artwork.title}" data-video-url="${video.url}">
+                            <i class="fas fa-play play-icon"></i>
+                        </div>
+                    </div>
+                `).join('');
+                
+                return `
+                    <div class="video-container">
+                        <div class="video-slider">
+                            ${slidesHTML}
+                        </div>
+                        ${videos.length > 1 ? `
+                            <div class="video-nav video-prev">
+                                <i class="fas fa-chevron-left"></i>
+                            </div>
+                            <div class="video-nav video-next">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                            <div class="video-dots">
+                                ${videos.map((_, i) => `<div class="video-dot ${i === 0 ? 'active' : ''}" data-index="${i}"></div>`).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }
+        }
+        
+        /*------------ 获取默认缩略图 --------------*/
+        function getDefaultThumbnail() {
+            return 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJub25lIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZWVlZWVlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgYWxpZ25tZW50LWJhc2VsaW5lPSJtaWRkbGUiIGZpbGw9IiM5OTkiPk5vIFRodW1ibmFpbDwvdGV4dD48L3N2Zz4=';
+        }
+
+/*------------ 初始化视频滑动功能 --------------*/
+function initVideoSliders() {
+    document.querySelectorAll('.video-container').forEach(container => {
+        const slider = container.querySelector('.video-slider');
+        const slides = container.querySelectorAll('.video-slide');
+        const prevBtn = container.querySelector('.video-prev');
+        const nextBtn = container.querySelector('.video-next');
+        const dots = container.querySelectorAll('.video-dot');
+        
+        if (!slider || slides.length <= 1) return;
+        
+        let currentIndex = 0;
+        
+        // 更新导航点状态
+        const updateDots = () => {
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentIndex);
+            });
+        };
+        
+        // 绑定所有slide的点击事件
+        const bindAllSlideClickEvents = () => {
+            slides.forEach(slide => {
+                const thumbnailContainer = slide.querySelector('.thumbnail-container');
+                if (thumbnailContainer) {
+                    // 先移除旧的事件监听器
+                    thumbnailContainer.replaceWith(thumbnailContainer.cloneNode(true));
+                    const newThumbnail = slide.querySelector('.thumbnail-container');
+                    
+                    newThumbnail.onclick = function(e) {
+                        if (e.target.classList.contains('play-icon') || 
+                            e.target.classList.contains('thumbnail')) {
+                            handleThumbnailClick(this);
+                        }
+                    };
+                }
+            });
+        };
+        
+        // 初始绑定所有slide的点击事件
+        bindAllSlideClickEvents();
+        
+        // 滚动到指定索引
+        const scrollToIndex = (index) => {
+            currentIndex = index;
+            slider.scrollTo({
+                left: slides[index].offsetLeft,
+                behavior: 'smooth'
+            });
+            updateDots();
+            
+            // 滑动结束后重新绑定所有slide的点击事件
+            setTimeout(bindAllSlideClickEvents, 300);
+        };
+        
+        // 上一个视频
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                const newIndex = (currentIndex - 1 + slides.length) % slides.length;
+                scrollToIndex(newIndex);
+            });
+        }
+        
+        // 下一个视频
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                const newIndex = (currentIndex + 1) % slides.length;
+                scrollToIndex(newIndex);
+            });
+        }
+        
+        // 导航点点击
+        dots.forEach(dot => {
+            dot.addEventListener('click', () => {
+                const index = parseInt(dot.dataset.index);
+                scrollToIndex(index);
+            });
+        });
+        
+        // 滚动事件
+        slider.addEventListener('scroll', () => {
+            const slideWidth = slides[0].offsetWidth;
+            const newIndex = Math.round(slider.scrollLeft / slideWidth);
+            if (newIndex !== currentIndex) {
+                currentIndex = newIndex;
+                updateDots();
+                
+                // 滚动停止后重新绑定所有slide的点击事件
+                clearTimeout(slider.scrollTimeout);
+                slider.scrollTimeout = setTimeout(bindAllSlideClickEvents, 300);
+            }
+        });
+    });
+}
+
+/*------------ 缩略图点击处理 --------------*/
+function handleThumbnailClick(thumbnailContainer) {
+    const thumbnail = thumbnailContainer.querySelector('.thumbnail');
+    if (!thumbnail) return;
+
+    const videoUrl = thumbnail.dataset.videoUrl;
+    if (!videoUrl) {
+        console.error('没有找到视频URL');
+        return;
+    }
+
+    // 创建全屏显示
+    const overlay = document.getElementById('fullscreenOverlay');
+    const content = overlay.querySelector('.fullscreen-content');
+    
+    // 创建视频元素
+    const videoHTML = `
+        <video class="artwork-media" controls autoplay playsinline controlsList="nodownload" style="width:100%;height:100%;object-fit:contain">
+            <source src="${videoUrl}" type="video/mp4">
+            您的浏览器不支持HTML5视频
+        </video>
+    `;
+    
+    content.innerHTML = videoHTML;
+    overlay.style.display = 'flex';
+    
+    const videoElement = content.querySelector('video');
+    if (videoElement) {
+        videoElement.oncontextmenu = (e) => e.preventDefault();
+        
+        videoElement.addEventListener('error', () => {
+            console.error('视频加载失败:', videoUrl);
+            overlay.style.display = 'none';
+            alert('视频加载失败，请检查网络连接或视频地址');
+        });
+        
+        videoElement.load();
+        videoElement.play().catch(err => {
+            console.error('自动播放失败:', err);
+            videoElement.controls = true;
+        });
+    }
+    
+    // 点击任意位置关闭全屏
+    overlay.onclick = function(e) {
+        if (videoElement) {
+            videoElement.pause();
+        }
+        overlay.style.display = 'none';
+    };
+    
+    // 阻止内容区域点击冒泡
+    content.onclick = function(e) {
+        e.stopPropagation();
+    };
+}
+
+        /*------------ 支付成功后的UI更新 --------------*/
+        function handlePurchaseSuccess(artworkCard) {
+            // 标记为已购买
+            artworkCard.dataset.purchased = "true";
+            localStorage.setItem(`purchased_${artworkCard.dataset.id}`, 'true');
+            
+            // 更新按钮为播放/下载按钮
+            const btnContainer = artworkCard.querySelector('.artwork-actions');
+            if (btnContainer) {
+                const videos = JSON.parse(artworkCard.dataset.videos || '[]');
+                if (videos.length > 0) {
+                    btnContainer.innerHTML = `
+                        <button class="action-btn play-btn" data-id="${artworkCard.dataset.id}">
+                            <i class="fas fa-play"></i> 播放
+                        </button>
+                    `;
+                } else {
+                    btnContainer.innerHTML = `
+                        <button class="action-btn download-btn" data-id="${artworkCard.dataset.id}">
+                            <i class="fas fa-download"></i> 下载作品
+                        </button>
+                    `;
+                }
+            }
+            
+            // 重新渲染媒体内容（显示缩略图）
+            const images = [];
+            const videos = JSON.parse(artworkCard.dataset.videos || '[]');
+            const mediaContainer = artworkCard.querySelector('.artwork-display');
+            if (mediaContainer) {
+                mediaContainer.innerHTML = renderMediaContent({
+                    _id: artworkCard.dataset.id,
+                    title: artworkCard.querySelector('.artwork-title')?.textContent || '',
+                    groupId: artworkCard.dataset.groupId
+                }, images, videos);
+                
+                // 重新初始化视频相关事件
+                initVideoSliders();
+                setupThumbnailClickEvents();
+            }
+        }
+
+        /*------------ 渲染操作按钮 --------------*/
+        function renderActionButton(artwork) {
+            const isPurchased =
+                localStorage.getItem(`purchased_${artwork._id}`) === 'true' ||
+                (artwork.groupId && localStorage.getItem(`purchased_group_${artwork.groupId}`) === 'true');
+
+            if (isPurchased) {
+                const videos = artwork.medias.filter(m => m.type === 'video' && m.url);
+                if (videos.length > 0) {
+                    return `
+                        <button class="action-btn play-btn" data-id="${artwork._id}">
+                            <i class="fas fa-play"></i> 播放
+                        </button>
+                    `;
+                } else {
+                    return `
+                        <button class="action-btn download-btn" data-id="${artwork._id}">
+                            <i class="fas fa-download"></i> 下载作品
+                        </button>
+                    `;
+                }
+            } else {
+                return `
+                    <button class="action-btn buy-btn" data-id="${artwork._id}" ${artwork.price <= 0 ? 'disabled' : ''}>
+                        <i class="fas fa-shopping-cart"></i> ${artwork.price > 0 ? `¥${artwork.price.toFixed(2)}` : '免费获取'}
+                    </button>
+                `;
+            }
+        }
+
+        /*------------ 错误显示 --------------*/
+        function showError(message) {
+            const container = document.querySelector('.artwork-container');
+            container.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>加载失败</h3>
+                    <p>${message}</p>
+                    <button onclick="window.location.reload()">
+                        <i class="fas fa-sync-alt"></i> 刷新页面
+                    </button>
+                </div>
+            `;
+        }
+
+        /*------------ 按钮事件监听 --------------*/
+        function setupButtonEvents() {
+            document.querySelector('.artwork-container').addEventListener('click', async (e) => {
+                const btn = e.target.closest('.action-btn');
+                if (!btn) return;
+                
+                try {
+                    if (btn.classList.contains('buy-btn')) {
+                        await handlePurchase(btn);
+                    } else if (btn.classList.contains('download-btn')) {
+                        await handleDownload(btn);
+                    } else if (btn.classList.contains('play-btn')) {
+                        await handlePlay(btn);
+                    }
+                } catch (error) {
+                    console.error('操作失败:', error);
+                    alert(`操作失败: ${error.message}`);
+                }
+            });
+        }
+        
+        /*------------ 播放按钮点击事件 --------------*/
+        async function handlePlay(btn) {
+            const artworkCard = btn.closest('.artwork-card');
+            const videos = JSON.parse(artworkCard.dataset.videos || '[]');
+            const mediaContainer = artworkCard.querySelector('.artwork-display');
+            
+            if (videos.length === 0) return;
+            
+            // 模拟点击第一个缩略图
+            const thumbnail = mediaContainer.querySelector('.thumbnail');
+            if (thumbnail) {
+                thumbnail.click();
+            }
+        }
+
+        /*------------ 购买操作 --------------*/
+        async function handlePurchase(btn) {
+            const artworkCard = btn.closest('.artwork-card');
+            const artworkId = artworkCard.dataset.id;
+            const groupId = artworkCard.dataset.groupId || ''; // 添加空值保护
+            const title = artworkCard.querySelector('.artwork-title')?.innerText || "未命名作品";
+            const priceText = btn.innerText.match(/¥([\d.]+)/);
+            const price = priceText ? parseFloat(priceText[1]) : 0;
+
+            console.log('准备创建订单，参数:', { artworkId, groupId, price }); // 添加调试日志
+
+            if (!price || price <= 0) {
+                alert("该作品为免费，暂不支持支付流程");
+                return;
+            }
+
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 获取支付链接...';
+            btn.disabled = true;
+
+            try {
+                const requestBody = {
+                    amount: price,
+                    subject: title,
+                    method: ["alipay", "wxpay"],
+                    metadata: { artworkId }
+                };
+                
+                if (groupId) requestBody.groupId = groupId; // 只有有值时才添加
+                
+                console.log('请求体:', requestBody); // 调试日志
+
+                const response = await fetch("/api/order/create", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "订单创建失败");
+                }
+
+                const urls = Object.entries(data).filter(([key]) => key.endsWith("Url"));
+                if (urls.length === 0) {
+                    throw new Error("未获取到支付链接");
+                }
+
+                if (urls.length === 1) {
+                    // 支付成功后更新UI
+                    handlePurchaseSuccess(artworkCard);
+                    window.location.href = urls[0][1];
+                } else {
+                    // 多种支付方式
+                    showPayChoiceDialog(urls, () => {
+                        handlePurchaseSuccess(artworkCard);
+                    });
+                }
+
+            } catch (err) {
+                console.error("创建订单失败:", err);
+                alert(`创建订单失败: ${err.message}`);
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            }
+        }
+
+        /*------------- 支付选择跳转 ----------------*/
+        function showPayChoiceDialog(urls) {
+          const container = document.getElementById("payButtons");
+          container.innerHTML = "";
+
+          urls.forEach(([key, url]) => {
+            const isAlipay = key.includes("alipay");
+            const label = isAlipay ? "支付宝支付" : "微信支付";
+            const iconClass = isAlipay ? "fab fa-alipay" : "fab fa-weixin";
+            
+            const btn = document.createElement("button");
+            btn.className = `pay-option-btn ${isAlipay ? 'alipay' : 'wxpay'}`;
+            btn.innerHTML = `
+              <i class="${iconClass} pay-option-icon"></i>
+              ${label}
+            `;
+            btn.onclick = () => window.location.href = url;
+            container.appendChild(btn);
+          });
+
+          document.getElementById("payChoice").style.display = "block";
+        }
+
+        /*------------ 下载操作（优化版） --------------*/
+        async function handleDownload(btn) {
+            const artworkId = btn.dataset.id;
+            const originalHTML = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 准备中...';
+            btn.disabled = true;
+            
+            const response = await fetch(`/api/download/${artworkId}`);
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || '下载失败');
+            }
+            
+            btn.innerHTML = '<i class="fas fa-check"></i> 下载完成';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-download"></i> 下载作品';
+                btn.disabled = false;
+            }, 2000);
+        }
+
+        /*------------ 设置缩略图点击事件 --------------*/
+        function setupThumbnailClickEvents() {
+            document.querySelectorAll('.thumbnail-container').forEach(container => {
+                container.onclick = function(e) {
+                    if (e.target.tagName === 'I' && e.target.classList.contains('play-icon')) {
+                        // 如果点击的是播放图标，也触发缩略图点击
+                        handleThumbnailClick(container);
+                    } else if (e.target.tagName === 'IMG' && e.target.classList.contains('thumbnail')) {
+                        // 点击缩略图本身
+                        handleThumbnailClick(container);
+                    }
+                };
+            });
+        }
+
+        // 检查登录状态
+        async function checkLogin() {
+          try {
+            const res = await fetch('/api/me', { credentials: 'include' });
+            if (!res.ok) {
+              window.location.href = '/login.html';
+              return false; // 未登录
+            }
+            const data = await res.json();
+            console.log('✅ 登录中，用户ID：', data.userId);
+            return true;
+          } catch (err) {
+            console.error('登录检查错误:', err);
+            window.location.href = '/login.html';
+            return false;
+          }
+        }
+
+        // 页面初始化
+        async function initPage() {
+          const isLoggedIn = await checkLogin();
+          if (!isLoggedIn) return;
+
+          try {
+            const res = await fetch('/api/order/purchased-groups', {
+              credentials: 'include'
+            });
+            const data = await res.json();
+            const groupIds = data.groupIds || [];
+
+            groupIds.forEach(id => {
+              localStorage.setItem(`purchased_group_${id}`, 'true');
+            });
+
+            console.log('✅ 已购买的作品 groupId：', groupIds);
+          } catch (err) {
+            console.error('获取已购买 groupId 失败：', err);
+          }
+
+          // ✅ 最后再加载所有作品
+          await loadArtworks();
+          
+          // 初始化视频滑动功能
+          initVideoSliders();
+          
+          // 设置缩略图点击事件
+          setupThumbnailClickEvents();
+        }
+        
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+    <script src="/heartbeat.js"></script>
+</body>
+</html>

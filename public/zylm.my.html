@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZYLM永久地址</title>
+    <!-- Font Awesome 6 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #eef2f8 0%, #d9e2ef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        /* 主卡片 —— 提升视觉层次 */
+        .glass-panel {
+            max-width: 880px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 3.5rem 3.5rem 2.5rem 2.5rem;
+            box-shadow: 
+                0 25px 50px -12px rgba(0, 0, 0, 0.25),
+                inset 0 1px 2px rgba(255, 255, 255, 0.8);
+            padding: 2.8rem 2.5rem 3.2rem;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        /* 标题区 */
+        .title-section {
+            text-align: center;
+            margin-bottom: 2.8rem;
+        }
+
+        .main-title {
+            font-size: 3.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #1e2b3f, #2c3e6d);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 5px rgba(255, 255, 255, 0.5);
+        }
+
+        /* 按钮容器 —— 精致间距 */
+        .button-gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 2.5rem;
+            margin: 2.5rem 0 1.2rem;
+        }
+
+        /* 优雅卡片按钮 (路线1 & 路线2) */
+        .route-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 230px;
+            height: 240px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border-radius: 38px;
+            text-decoration: none;
+            color: #1e2f41;
+            box-shadow: 
+                0 18px 30px -10px rgba(0, 25, 50, 0.2),
+                0 0 0 1px rgba(255, 255, 255, 0.8) inset,
+                0 0 0 1px rgba(255, 255, 255, 0.5);
+            transition: all 0.35s cubic-bezier(0.15, 0.75, 0.4, 1);
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        /* 微妙的顶部光效 */
+        .route-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 5%;
+            width: 90%;
+            height: 6px;
+            background: linear-gradient(90deg, transparent, #9bb8e0, #6c9bd2, #9bb8e0, transparent);
+            border-radius: 30px 30px 0 0;
+            opacity: 0.4;
+        }
+
+        .route-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 
+                0 30px 45px -12px rgba(21, 50, 90, 0.4),
+                0 0 0 2px rgba(255, 255, 255, 0.9) inset;
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .route-card:active {
+            transform: translateY(-5px) scale(0.98);
+            transition: 0.1s;
+        }
+
+        /* 图标专区 */
+        .icon-badge {
+            width: 100px;
+            height: 100px;
+            background: rgba(220, 235, 250, 0.7);
+            border-radius: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 14px -6px rgba(60, 90, 120, 0.2), inset 0 -2px 0 rgba(0,0,0,0.02);
+            backdrop-filter: blur(2px);
+            transition: 0.3s;
+        }
+
+        .route-card:hover .icon-badge {
+            background: rgba(200, 222, 250, 0.9);
+            box-shadow: 0 12px 20px -10px #2c5f9a40;
+        }
+
+        .icon-badge i {
+            font-size: 3.8rem;
+            color: #2c3e50;
+            filter: drop-shadow(0 4px 5px rgba(30, 60, 90, 0.15));
+        }
+
+        /* 路线名称 + 小标记 */
+        .route-label {
+            font-size: 1.8rem;
+            font-weight: 620;
+            letter-spacing: 0.5px;
+            background: linear-gradient(145deg, #1f3a57, #152a40);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.4rem;
+        }
+
+        .badge-cdn {
+            background: rgba(44, 62, 80, 0.1);
+            border-radius: 40px;
+            padding: 0.3rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #25537b;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(2px);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge-cdn i {
+            font-size: 0.7rem;
+            color: #3f6b9c;
+        }
+
+        /* 路线2 特别的微提示 */
+        .route-card.special-route .badge-cdn {
+            background: rgba(250, 210, 100, 0.2);
+            color: #9e6d1b;
+            border-color: #ffd966;
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 600px) {
+            .glass-panel {
+                padding: 2rem 1.5rem;
+                border-radius: 2.5rem;
+            }
+            .main-title {
+                font-size: 2.4rem;
+            }
+            .route-card {
+                width: 190px;
+                height: 200px;
+            }
+            .icon-badge {
+                width: 80px;
+                height: 80px;
+                border-radius: 28px;
+            }
+            .icon-badge i {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="glass-panel">
+        <!-- 标题区 - 完全移除所有多余标语，只保留主标题 -->
+        <div class="title-section">
+            <h1 class="main-title">永久地址页面</h1>
+            <!-- 所有小标语、脚注均已删除，符合要求 -->
+        </div>
+
+        <!-- 按钮区域: 路线1 & 路线2 (路线1无任何标语，路线2标签改为“优先选择路线2”) -->
+        <div class="button-gallery">
+            <!-- 路线1 卡片 - 移除“稳定入口”标语 -->
+            <a href="/" class="route-card" target="_blank" rel="noopener">
+                <div class="icon-badge">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <span class="route-label">路线1</span>
+                <!-- 原本的 .badge-cdn 已完全移除，路线1下方没有任何文字 -->
+            </a>
+
+            <!-- 路线2 卡片 (id用于JS更新) - 标语改为“优先选择路线2” -->
+            <a id="route2" href="#" class="route-card special-route" target="_blank" rel="noopener">
+                <div class="icon-badge">
+                    <i class="fas fa-sync-alt"></i> <!-- 动态图标 -->
+                </div>
+                <span class="route-label">路线2</span>
+                <!-- 将原来的“CDN 每7天” 替换为 “优先选择路线2” -->
+                <span class="badge-cdn">
+                    <i class="fas fa-star"></i> 优先选择路线2
+                </span>
+            </a>
+        </div>
+
+        <!-- 所有脚注、额外说明均已删除，页面极简 -->
+    </div>
+
+    <!-- 路线2的CDN更新脚本 (完全保留原有逻辑) -->
+    <script>
+        (function() {
+            console.log('[路线2] 开始读取 /data/current-domain.txt ...');
+            const route2Link = document.getElementById('route2');
+
+            fetch('/data/current-domain.txt')
+                .then(response => {
+                    console.log('[路线2] 收到响应，状态码：', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(url => {
+                    console.log('[路线2] 文件内容：', url);
+                    if (url && url.trim().startsWith('http')) {
+                        const cleaned = url.trim();
+                        route2Link.href = cleaned;
+                        console.log('[路线2] 已更新链接为：', cleaned);
+                        route2Link.classList.add('updated');
+                    } else {
+                        console.warn('[路线2] 内容无效，保持默认值');
+                        route2Link.href = '#';   // 占位
+                    }
+                })
+                .catch(err => {
+                    console.error('[路线2] 更新失败：', err);
+                    route2Link.href = '#'; 
+                    route2Link.setAttribute('title', 'CDN暂未获取，请稍后重试');
+                });
+        })();
+    </script>
+    <!-- 按钮微动效果（保留原有点击动画感）-->
+    <script>
+        document.querySelectorAll('.route-card').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                // 防止点击空链接跳转当前页
+                if (this.getAttribute('href') === '#') {
+                    e.preventDefault();
+                    alert('路线2域名暂未更新，请稍后再试或使用路线1');
+                }
+                // 动画 (快速缩放)
+                this.style.transform = 'scale(0.97) translateY(-4px)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+    </script>
+</body>
+</html>

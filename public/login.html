@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录聊天室</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 1rem;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 350px;
+      box-sizing: border-box;
+    }
+    input, button {
+      width: 100%;
+      padding: 0.8rem;
+      margin-top: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+    button {
+      background-color: #66b3ff;
+      color: white;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #3399ff;
+    }
+    .link {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    #message {
+      color: red;
+      margin-top: 0.5rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>登录</h2>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="用户名" required>
+      <input type="password" id="password" placeholder="密码" required>
+      <button type="submit">登录</button>
+    </form>
+    <p class="link">没有账号？<a href="/register.html">去注册</a></p>
+    <p id="message"></p>
+  </div>
+
+  <script>
+const form = document.getElementById('loginForm');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+  const msg = document.getElementById('message');
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+      credentials: 'include' // ✅ 关键：携带 cookie
+    });
+
+    const result = await res.json();
+    msg.innerText = result.message;
+
+    if (res.ok) {
+      msg.style.color = 'green';
+      
+      // 存储用户名到 localStorage（新增）
+      if (result.username) {
+        localStorage.setItem('username', result.username);
+      }
+      
+      // 保留原有的重定向逻辑
+      setTimeout(() => {
+        const params = new URLSearchParams(window.location.search);
+        const redirect = params.get('redirect');
+        window.location.href = redirect || '/chat.html';
+      }, 1000);
+
+    } else {
+      msg.style.color = 'red';
+    }
+  } catch (err) {
+    console.error('登录错误:', err);
+    msg.innerText = '⚠️ 登录请求失败';
+    msg.style.color = 'red';
+  }
+});
+
+  </script>
+</body>
+</html>
+
+
+
+

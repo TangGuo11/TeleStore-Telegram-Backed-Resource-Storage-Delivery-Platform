@@ -1,0 +1,725 @@
+
+[2025-09-27T06:49:19.566Z] Headers:
+{
+  "host": "zylm.xyz",
+  "x-real-ip": "172.68.211.192",
+  "x-forwarded-for": "18.166.119.5, 172.68.211.192",
+  "x-forwarded-proto": "https",
+  "connection": "close",
+  "content-length": "1835",
+  "cf-ray": "98590f74351eb1bf-HKG",
+  "user-agent": "python-requests/2.31.0",
+  "accept": "*/*",
+  "accept-encoding": "gzip, br",
+  "cf-worker": "apiok.us",
+  "cdn-loop": "cloudflare; loops=1; subreqs=1",
+  "cf-visitor": "{\"scheme\":\"https\"}",
+  "cf-ew-via": "15",
+  "content-type": "application/json",
+  "cf-connecting-ip": "18.166.119.5"
+}
+Body:
+{
+  "code": 0,
+  "result": {
+    "id": "68d788d9b9f70d5fde627096",
+    "status": "DONE",
+    "consumer": null,
+    "merchant": "6818987cf3fead534d82b1b6",
+    "projectName": "ZYLM商店",
+    "projectType": "BUYMEABTC",
+    "project": {
+      "id": "682d726b835d8b1ac344372e",
+      "name": "ZYLM商店",
+      "nameI18n": {
+        "en": "ZYLM Store"
+      },
+      "status": "ONLINE",
+      "type": "BUYMEABTC",
+      "cover": "https://static.idatariver.com/img-682d726b835d8b1ac344372e-1747809190",
+      "seoPath": "/project/zylm商店-87c0",
+      "isPlatform": false,
+      "i18nType": 0,
+      "desc": "ZYLM商店",
+      "descI18n": {
+        "en": "ZYLM Store"
+      }
+    },
+    "oriPrice": 0.28,
+    "price": 0.28,
+    "buymeabtc": {
+      "name": "",
+      "message": "",
+      "amount": 0.28,
+      "private": false,
+      "btc2usd": 109621.375
+    },
+    "anonymous": true,
+    "paymentFeeCovered": true,
+    "updatedAt": "2025-09-27 06:48:57 Z",
+    "createdAt": "2025-09-27 06:48:57 Z",
+    "createdTS": 1758955737,
+    "dt": "20250927",
+    "frozenProfit": 0.2408,
+    "frozenTo": 1759560558,
+    "frozenToDate": "2025-10-04",
+    "payAt": "2025-09-27 06:49:18 Z",
+    "payTS": 1758955758,
+    "paymentFee": 0.0308,
+    "platformFee": 0.0084,
+    "profit": 0.2408,
+    "payDetails": {
+      "backend": "yzf",
+      "method": "alipay",
+      "payTo": "platform"
+    },
+    "expiredInterval": 3600,
+    "isConsumer": true,
+    "sku": {},
+    "mPayments": [
+      {
+        "name": "crypto",
+        "method": "crypto",
+        "enabled": false,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "0%"
+      },
+      {
+        "name": "alipay",
+        "method": "alipay",
+        "enabled": true,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "11.0%",
+        "desc": "场外汇率7.38CNY"
+      },
+      {
+        "name": "wxpay",
+        "method": "wxpay",
+        "enabled": true,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "11.0%",
+        "desc": "场外汇率7.43CNY"
+      },
+      {
+        "name": "NEW Payment - Uninitialized",
+        "method": "681899f51b8f728b00aaa337",
+        "enabled": true,
+        "isPlatform": false
+      }
+    ],
+    "mContacts": {}
+  },
+  "event": "ORDER_COMPLETED"
+}
+------------------------
+
+[2025-09-27T06:49:47.676Z] Headers:
+{
+  "host": "zylm.xyz",
+  "x-real-ip": "172.71.210.128",
+  "x-forwarded-for": "18.166.119.5, 172.71.210.128",
+  "x-forwarded-proto": "https",
+  "connection": "close",
+  "content-length": "1835",
+  "cf-ray": "9859102630498512-HKG",
+  "user-agent": "python-requests/2.31.0",
+  "accept": "*/*",
+  "accept-encoding": "gzip, br",
+  "cf-worker": "apiok.us",
+  "cdn-loop": "cloudflare; loops=1; subreqs=1",
+  "cf-visitor": "{\"scheme\":\"https\"}",
+  "cf-ew-via": "15",
+  "content-type": "application/json",
+  "cf-connecting-ip": "18.166.119.5"
+}
+Body:
+{
+  "code": 0,
+  "result": {
+    "id": "68d788d9b9f70d5fde627096",
+    "status": "DONE",
+    "consumer": null,
+    "merchant": "6818987cf3fead534d82b1b6",
+    "projectName": "ZYLM商店",
+    "projectType": "BUYMEABTC",
+    "project": {
+      "id": "682d726b835d8b1ac344372e",
+      "name": "ZYLM商店",
+      "nameI18n": {
+        "en": "ZYLM Store"
+      },
+      "status": "ONLINE",
+      "type": "BUYMEABTC",
+      "cover": "https://static.idatariver.com/img-682d726b835d8b1ac344372e-1747809190",
+      "seoPath": "/project/zylm商店-87c0",
+      "isPlatform": false,
+      "i18nType": 0,
+      "desc": "ZYLM商店",
+      "descI18n": {
+        "en": "ZYLM Store"
+      }
+    },
+    "oriPrice": 0.28,
+    "price": 0.28,
+    "buymeabtc": {
+      "name": "",
+      "message": "",
+      "amount": 0.28,
+      "private": false,
+      "btc2usd": 109621.375
+    },
+    "anonymous": true,
+    "paymentFeeCovered": true,
+    "updatedAt": "2025-09-27 06:48:57 Z",
+    "createdAt": "2025-09-27 06:48:57 Z",
+    "createdTS": 1758955737,
+    "dt": "20250927",
+    "frozenProfit": 0.2408,
+    "frozenTo": 1759560558,
+    "frozenToDate": "2025-10-04",
+    "payAt": "2025-09-27 06:49:18 Z",
+    "payTS": 1758955758,
+    "paymentFee": 0.0308,
+    "platformFee": 0.0084,
+    "profit": 0.2408,
+    "payDetails": {
+      "backend": "yzf",
+      "method": "alipay",
+      "payTo": "platform"
+    },
+    "expiredInterval": 3600,
+    "isConsumer": true,
+    "sku": {},
+    "mPayments": [
+      {
+        "name": "crypto",
+        "method": "crypto",
+        "enabled": false,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "0%"
+      },
+      {
+        "name": "alipay",
+        "method": "alipay",
+        "enabled": true,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "11.0%",
+        "desc": "场外汇率7.38CNY"
+      },
+      {
+        "name": "wxpay",
+        "method": "wxpay",
+        "enabled": true,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "11.0%",
+        "desc": "场外汇率7.43CNY"
+      },
+      {
+        "name": "NEW Payment - Uninitialized",
+        "method": "681899f51b8f728b00aaa337",
+        "enabled": true,
+        "isPlatform": false
+      }
+    ],
+    "mContacts": {}
+  },
+  "event": "ORDER_COMPLETED"
+}
+------------------------
+
+[2025-09-27T06:50:47.674Z] Headers:
+{
+  "host": "zylm.xyz",
+  "x-real-ip": "172.71.214.18",
+  "x-forwarded-for": "18.166.119.5, 172.71.214.18",
+  "x-forwarded-proto": "https",
+  "connection": "close",
+  "content-length": "1835",
+  "cf-ray": "9859119d20bf04ce-HKG",
+  "user-agent": "python-requests/2.31.0",
+  "accept": "*/*",
+  "accept-encoding": "gzip, br",
+  "cf-worker": "apiok.us",
+  "cdn-loop": "cloudflare; loops=1; subreqs=1",
+  "cf-visitor": "{\"scheme\":\"https\"}",
+  "cf-ew-via": "15",
+  "content-type": "application/json",
+  "cf-connecting-ip": "18.166.119.5"
+}
+Body:
+{
+  "code": 0,
+  "result": {
+    "id": "68d788d9b9f70d5fde627096",
+    "status": "DONE",
+    "consumer": null,
+    "merchant": "6818987cf3fead534d82b1b6",
+    "projectName": "ZYLM商店",
+    "projectType": "BUYMEABTC",
+    "project": {
+      "id": "682d726b835d8b1ac344372e",
+      "name": "ZYLM商店",
+      "nameI18n": {
+        "en": "ZYLM Store"
+      },
+      "status": "ONLINE",
+      "type": "BUYMEABTC",
+      "cover": "https://static.idatariver.com/img-682d726b835d8b1ac344372e-1747809190",
+      "seoPath": "/project/zylm商店-87c0",
+      "isPlatform": false,
+      "i18nType": 0,
+      "desc": "ZYLM商店",
+      "descI18n": {
+        "en": "ZYLM Store"
+      }
+    },
+    "oriPrice": 0.28,
+    "price": 0.28,
+    "buymeabtc": {
+      "name": "",
+      "message": "",
+      "amount": 0.28,
+      "private": false,
+      "btc2usd": 109621.375
+    },
+    "anonymous": true,
+    "paymentFeeCovered": true,
+    "updatedAt": "2025-09-27 06:48:57 Z",
+    "createdAt": "2025-09-27 06:48:57 Z",
+    "createdTS": 1758955737,
+    "dt": "20250927",
+    "frozenProfit": 0.2408,
+    "frozenTo": 1759560558,
+    "frozenToDate": "2025-10-04",
+    "payAt": "2025-09-27 06:49:18 Z",
+    "payTS": 1758955758,
+    "paymentFee": 0.0308,
+    "platformFee": 0.0084,
+    "profit": 0.2408,
+    "payDetails": {
+      "backend": "yzf",
+      "method": "alipay",
+      "payTo": "platform"
+    },
+    "expiredInterval": 3600,
+    "isConsumer": true,
+    "sku": {},
+    "mPayments": [
+      {
+        "name": "crypto",
+        "method": "crypto",
+        "enabled": false,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "0%"
+      },
+      {
+        "name": "alipay",
+        "method": "alipay",
+        "enabled": true,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "11.0%",
+        "desc": "场外汇率7.38CNY"
+      },
+      {
+        "name": "wxpay",
+        "method": "wxpay",
+        "enabled": true,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "11.0%",
+        "desc": "场外汇率7.43CNY"
+      },
+      {
+        "name": "NEW Payment - Uninitialized",
+        "method": "681899f51b8f728b00aaa337",
+        "enabled": true,
+        "isPlatform": false
+      }
+    ],
+    "mContacts": {}
+  },
+  "event": "ORDER_COMPLETED"
+}
+------------------------
+
+[2025-09-27T06:51:47.689Z] Headers:
+{
+  "host": "zylm.xyz",
+  "x-real-ip": "172.71.219.10",
+  "x-forwarded-for": "18.166.119.5, 172.71.219.10",
+  "x-forwarded-proto": "https",
+  "connection": "close",
+  "content-length": "1835",
+  "cf-ray": "9859131465d62106-HKG",
+  "user-agent": "python-requests/2.31.0",
+  "accept": "*/*",
+  "accept-encoding": "gzip, br",
+  "cf-worker": "apiok.us",
+  "cdn-loop": "cloudflare; loops=1; subreqs=1",
+  "cf-visitor": "{\"scheme\":\"https\"}",
+  "cf-ew-via": "15",
+  "content-type": "application/json",
+  "cf-connecting-ip": "18.166.119.5"
+}
+Body:
+{
+  "code": 0,
+  "result": {
+    "id": "68d788d9b9f70d5fde627096",
+    "status": "DONE",
+    "consumer": null,
+    "merchant": "6818987cf3fead534d82b1b6",
+    "projectName": "ZYLM商店",
+    "projectType": "BUYMEABTC",
+    "project": {
+      "id": "682d726b835d8b1ac344372e",
+      "name": "ZYLM商店",
+      "nameI18n": {
+        "en": "ZYLM Store"
+      },
+      "status": "ONLINE",
+      "type": "BUYMEABTC",
+      "cover": "https://static.idatariver.com/img-682d726b835d8b1ac344372e-1747809190",
+      "seoPath": "/project/zylm商店-87c0",
+      "isPlatform": false,
+      "i18nType": 0,
+      "desc": "ZYLM商店",
+      "descI18n": {
+        "en": "ZYLM Store"
+      }
+    },
+    "oriPrice": 0.28,
+    "price": 0.28,
+    "buymeabtc": {
+      "name": "",
+      "message": "",
+      "amount": 0.28,
+      "private": false,
+      "btc2usd": 109621.375
+    },
+    "anonymous": true,
+    "paymentFeeCovered": true,
+    "updatedAt": "2025-09-27 06:48:57 Z",
+    "createdAt": "2025-09-27 06:48:57 Z",
+    "createdTS": 1758955737,
+    "dt": "20250927",
+    "frozenProfit": 0.2408,
+    "frozenTo": 1759560558,
+    "frozenToDate": "2025-10-04",
+    "payAt": "2025-09-27 06:49:18 Z",
+    "payTS": 1758955758,
+    "paymentFee": 0.0308,
+    "platformFee": 0.0084,
+    "profit": 0.2408,
+    "payDetails": {
+      "backend": "yzf",
+      "method": "alipay",
+      "payTo": "platform"
+    },
+    "expiredInterval": 3600,
+    "isConsumer": true,
+    "sku": {},
+    "mPayments": [
+      {
+        "name": "crypto",
+        "method": "crypto",
+        "enabled": false,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "0%"
+      },
+      {
+        "name": "alipay",
+        "method": "alipay",
+        "enabled": true,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "11.0%",
+        "desc": "场外汇率7.38CNY"
+      },
+      {
+        "name": "wxpay",
+        "method": "wxpay",
+        "enabled": true,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "11.0%",
+        "desc": "场外汇率7.43CNY"
+      },
+      {
+        "name": "NEW Payment - Uninitialized",
+        "method": "681899f51b8f728b00aaa337",
+        "enabled": true,
+        "isPlatform": false
+      }
+    ],
+    "mContacts": {}
+  },
+  "event": "ORDER_COMPLETED"
+}
+------------------------
+
+[2025-09-27T06:52:47.690Z] Headers:
+{
+  "host": "zylm.xyz",
+  "x-real-ip": "172.71.214.19",
+  "x-forwarded-for": "18.166.119.5, 172.71.214.19",
+  "x-forwarded-proto": "https",
+  "connection": "close",
+  "content-length": "1835",
+  "cf-ray": "9859148b178c04ce-HKG",
+  "user-agent": "python-requests/2.31.0",
+  "accept": "*/*",
+  "accept-encoding": "gzip, br",
+  "cf-worker": "apiok.us",
+  "cdn-loop": "cloudflare; loops=1; subreqs=1",
+  "cf-visitor": "{\"scheme\":\"https\"}",
+  "cf-ew-via": "15",
+  "content-type": "application/json",
+  "cf-connecting-ip": "18.166.119.5"
+}
+Body:
+{
+  "code": 0,
+  "result": {
+    "id": "68d788d9b9f70d5fde627096",
+    "status": "DONE",
+    "consumer": null,
+    "merchant": "6818987cf3fead534d82b1b6",
+    "projectName": "ZYLM商店",
+    "projectType": "BUYMEABTC",
+    "project": {
+      "id": "682d726b835d8b1ac344372e",
+      "name": "ZYLM商店",
+      "nameI18n": {
+        "en": "ZYLM Store"
+      },
+      "status": "ONLINE",
+      "type": "BUYMEABTC",
+      "cover": "https://static.idatariver.com/img-682d726b835d8b1ac344372e-1747809190",
+      "seoPath": "/project/zylm商店-87c0",
+      "isPlatform": false,
+      "i18nType": 0,
+      "desc": "ZYLM商店",
+      "descI18n": {
+        "en": "ZYLM Store"
+      }
+    },
+    "oriPrice": 0.28,
+    "price": 0.28,
+    "buymeabtc": {
+      "name": "",
+      "message": "",
+      "amount": 0.28,
+      "private": false,
+      "btc2usd": 109621.375
+    },
+    "anonymous": true,
+    "paymentFeeCovered": true,
+    "updatedAt": "2025-09-27 06:48:57 Z",
+    "createdAt": "2025-09-27 06:48:57 Z",
+    "createdTS": 1758955737,
+    "dt": "20250927",
+    "frozenProfit": 0.2408,
+    "frozenTo": 1759560558,
+    "frozenToDate": "2025-10-04",
+    "payAt": "2025-09-27 06:49:18 Z",
+    "payTS": 1758955758,
+    "paymentFee": 0.0308,
+    "platformFee": 0.0084,
+    "profit": 0.2408,
+    "payDetails": {
+      "backend": "yzf",
+      "method": "alipay",
+      "payTo": "platform"
+    },
+    "expiredInterval": 3600,
+    "isConsumer": true,
+    "sku": {},
+    "mPayments": [
+      {
+        "name": "crypto",
+        "method": "crypto",
+        "enabled": false,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "0%"
+      },
+      {
+        "name": "alipay",
+        "method": "alipay",
+        "enabled": true,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "11.0%",
+        "desc": "场外汇率7.38CNY"
+      },
+      {
+        "name": "wxpay",
+        "method": "wxpay",
+        "enabled": true,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "11.0%",
+        "desc": "场外汇率7.43CNY"
+      },
+      {
+        "name": "NEW Payment - Uninitialized",
+        "method": "681899f51b8f728b00aaa337",
+        "enabled": true,
+        "isPlatform": false
+      }
+    ],
+    "mContacts": {}
+  },
+  "event": "ORDER_COMPLETED"
+}
+------------------------
+
+[2025-09-27T06:53:47.624Z] Headers:
+{
+  "host": "zylm.xyz",
+  "x-real-ip": "172.68.211.192",
+  "x-forwarded-for": "18.166.119.5, 172.68.211.192",
+  "x-forwarded-proto": "https",
+  "connection": "close",
+  "content-length": "1835",
+  "cf-ray": "985916022081b1bf-HKG",
+  "user-agent": "python-requests/2.31.0",
+  "accept": "*/*",
+  "accept-encoding": "gzip, br",
+  "cf-worker": "apiok.us",
+  "cdn-loop": "cloudflare; loops=1; subreqs=1",
+  "cf-visitor": "{\"scheme\":\"https\"}",
+  "cf-ew-via": "15",
+  "content-type": "application/json",
+  "cf-connecting-ip": "18.166.119.5"
+}
+Body:
+{
+  "code": 0,
+  "result": {
+    "id": "68d788d9b9f70d5fde627096",
+    "status": "DONE",
+    "consumer": null,
+    "merchant": "6818987cf3fead534d82b1b6",
+    "projectName": "ZYLM商店",
+    "projectType": "BUYMEABTC",
+    "project": {
+      "id": "682d726b835d8b1ac344372e",
+      "name": "ZYLM商店",
+      "nameI18n": {
+        "en": "ZYLM Store"
+      },
+      "status": "ONLINE",
+      "type": "BUYMEABTC",
+      "cover": "https://static.idatariver.com/img-682d726b835d8b1ac344372e-1747809190",
+      "seoPath": "/project/zylm商店-87c0",
+      "isPlatform": false,
+      "i18nType": 0,
+      "desc": "ZYLM商店",
+      "descI18n": {
+        "en": "ZYLM Store"
+      }
+    },
+    "oriPrice": 0.28,
+    "price": 0.28,
+    "buymeabtc": {
+      "name": "",
+      "message": "",
+      "amount": 0.28,
+      "private": false,
+      "btc2usd": 109621.375
+    },
+    "anonymous": true,
+    "paymentFeeCovered": true,
+    "updatedAt": "2025-09-27 06:48:57 Z",
+    "createdAt": "2025-09-27 06:48:57 Z",
+    "createdTS": 1758955737,
+    "dt": "20250927",
+    "frozenProfit": 0.2408,
+    "frozenTo": 1759560558,
+    "frozenToDate": "2025-10-04",
+    "payAt": "2025-09-27 06:49:18 Z",
+    "payTS": 1758955758,
+    "paymentFee": 0.0308,
+    "platformFee": 0.0084,
+    "profit": 0.2408,
+    "payDetails": {
+      "backend": "yzf",
+      "method": "alipay",
+      "payTo": "platform"
+    },
+    "expiredInterval": 3600,
+    "isConsumer": true,
+    "sku": {},
+    "mPayments": [
+      {
+        "name": "crypto",
+        "method": "crypto",
+        "enabled": false,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "0%"
+      },
+      {
+        "name": "alipay",
+        "method": "alipay",
+        "enabled": true,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "11.0%",
+        "desc": "场外汇率7.38CNY"
+      },
+      {
+        "name": "wxpay",
+        "method": "wxpay",
+        "enabled": true,
+        "isPlatform": true,
+        "paymentFeeCovered": true,
+        "ratioRange": "11.0%",
+        "desc": "场外汇率7.43CNY"
+      },
+      {
+        "name": "NEW Payment - Uninitialized",
+        "method": "681899f51b8f728b00aaa337",
+        "enabled": true,
+        "isPlatform": false
+      }
+    ],
+    "mContacts": {}
+  },
+  "event": "ORDER_COMPLETED"
+}
+------------------------
+
+[2025-09-27T12:19:33.416Z] Headers:
+{
+  "host": "zylm.xyz",
+  "x-real-ip": "142.171.229.165",
+  "x-forwarded-for": "142.171.229.165",
+  "x-forwarded-proto": "https",
+  "connection": "close",
+  "content-length": "116",
+  "user-agent": "curl/7.68.0",
+  "accept": "*/*",
+  "content-type": "application/json"
+}
+Body:
+{
+  "code": 0,
+  "event": "ORDER_COMPLETED",
+  "result": {
+    "id": "68d7d4a4d8727d5c3c081058",
+    "status": "DONE"
+  }
+}
+------------------------

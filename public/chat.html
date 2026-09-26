@@ -1,0 +1,2328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>资源联盟聊天室</title>
+  
+  <style>
+    /* ====================
+       🎨 全局样式和布局
+    ==================== */
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #121212;
+      color: #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    header {
+      background-color: #1f1f1f;
+      color: #66b3ff;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: bold;
+      border-bottom: 1px solid #333;
+    }
+
+    /* ====================
+       💬 聊天消息区域
+    ==================== */
+    #chat-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .message {
+      display: flex;
+      align-items: flex-end;
+      gap: 0.5rem;
+      margin: 0.5rem 0;
+      animation: fadeIn 0.3s ease;
+      max-width: 100%;
+      position: relative;
+      contain: style;
+    }
+
+    /* ---------- 👤 消息方向 ---------- */
+    .you {
+      flex-direction: row;
+      justify-content: flex-end;
+    }
+
+    .other {
+      flex-direction: row;
+      justify-content: flex-start;
+    }
+
+    /* ---------- 💭 聊天气泡 ---------- */
+    .bubble {
+      max-width: 75%;
+      padding: 0.5rem 0.8rem;
+      border-radius: 10px;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+      position: relative;
+      font-size: 1rem;
+      line-height: 1.4rem;
+      display: inline-block;
+      vertical-align: top;
+    }
+
+    .you .bubble {
+      background-color: #2a3b4c;
+      color: #cce7ff;
+      border-bottom-right-radius: 0px;
+    }
+
+    .other .bubble {
+      background-color: #292929;
+      color: #f0f0f0;
+      border-bottom-left-radius: 0px;
+    }
+
+    /* ---------- 🕒 时间戳 ---------- */
+    .timestamp {
+      position: absolute;
+      bottom: -7px;
+      font-size: 6px;
+      color: #777;
+    }
+
+    .you .timestamp {
+      right: 2px;
+    }
+
+    .other .timestamp {
+      left: 2px;
+    }
+
+    /* ---------- 👤 用户头像 ---------- */
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: #2d3748; /* 保持这个，但可以搭配深色边框 */
+  color: white;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  position: relative;
+  top: 5px;
+  border: 2px solid #4a5568; /* 边框也调暗 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+    /* ---------- ✨ 消息动画 ---------- */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ====================
+       🖼️ 媒体网格布局系统
+    ==================== */
+
+    /* ---------- 🎯 通用基础样式 ---------- */
+    .media-group {
+      display: grid;
+      gap: 4px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .media-wrapper {
+      position: relative;
+      cursor: pointer;
+      border-radius: 6px;
+      overflow: hidden;
+      transition: transform 0.2s ease;
+      aspect-ratio: 1/1;
+      background-color: #2a2a2a;
+      display: block; /* 明确在网格里作为块级元素，避免高度计算异常 */
+      min-width: 0;
+      min-height: 0;
+    }
+
+    .media-wrapper:hover {
+      transform: scale(1.03);
+    }
+
+    .media-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    /* ✅ 智能放大模式 */
+    .media-wrapper.smart-fill img {
+      object-fit: contain; /* 用contain保持比例 */
+    }
+
+    /* 懒加载视频缩略图的铺满容器（防止出现底部留白/缺块黑） */
+    .video-thumb-wrapper {
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+    }
+    .video-thumb-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ---------- 🔢 单列布局 ---------- */
+    .cols-1 {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-auto-rows: 1fr; /* 每行均分高度，防止塌陷 */
+      align-items: stretch; /* 撑满 */
+      justify-items: stretch;
+      gap: 4px;
+      width: 100%;
+      height: 100%; /* 保证填满汽包 */
+    }
+
+    .cols-1 .media-wrapper {
+      width: 100%;
+      height: 100%;
+      aspect-ratio: 4 / 3; /* 稍横一些，更自然 */
+      overflow: hidden;
+    }
+
+    .cols-1 img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+
+    /* ---------- 🔢 2张图布局 ---------- */
+    .grid-2-equal,
+    .grid-2-left-large {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 4px;
+      max-height: none !important;
+      height: auto !important;
+    }
+    /* 修复媒体包装器 */
+    .grid-2-equal .media-wrapper,
+    .grid-2-left-large .media-wrapper {
+      aspect-ratio: 1/1;
+      height: auto;
+      max-height: none;
+    }
+    /* 确保图片正确显示 */
+    .grid-2-equal .media-wrapper img,
+    .grid-2-left-large .media-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+
+   /* ---------- 🔢 3张图布局 ---------- */
+   .media-group.grid-3 {
+     display: grid;
+     gap: 4px;
+     width: 100%;
+     height: 100%;
+     overflow: hidden;
+    }
+
+    .media-group.grid-3 .media-wrapper {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .media-group.grid-3 img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    /* ---------- 🟩 变体①：左1 + 右2 ---------- */
+    .media-group.grid-3-left1-right2 {
+      grid-template-columns: 2fr 1fr; /* 左边大一些 */
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    /* 左侧大图 */
+    .media-group.grid-3-left1-right2 .media-wrapper:nth-child(1) {
+      grid-column: 1 / 2;
+      grid-row: 1 / 3; /* 占两行 */
+    }
+
+    /* 右上图、右下图 */
+    .media-group.grid-3-left1-right2 .media-wrapper:nth-child(2) {
+      grid-column: 2 / 3;
+      grid-row: 1 / 2;
+    }
+    .media-group.grid-3-left1-right2 .media-wrapper:nth-child(3) {
+      grid-column: 2 / 3;
+      grid-row: 2 / 3;
+    }
+
+    /* ---------- 🟦 变体②：上1 + 下2 ---------- */
+    .media-group.grid-3-top1-bottom2 {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: 1.3fr 1fr; /* 上面略高 */
+    }
+
+    /* 上方大图 */
+    .media-group.grid-3-top1-bottom2 .media-wrapper:nth-child(1) {
+      grid-column: 1 / 3;
+      grid-row: 1;
+    }
+
+    /* 下方两张并列 */
+    .media-group.grid-3-top1-bottom2 .media-wrapper:nth-child(2) {
+      grid-column: 1;
+      grid-row: 2;
+    }
+    .media-group.grid-3-top1-bottom2 .media-wrapper:nth-child(3) {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    
+    /* ---------- 🔢 4张图布局 ---------- */
+    .grid-4-equal {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* 左1右3垂直排列布局 - 控制宽度保留空隙 */
+    .grid-4-two-wide {
+      grid-template-columns: 2fr 1fr; /* 调整比例，左边1.5，右边1，留出空隙 */
+      grid-template-rows: 1fr 1fr 1fr;
+      gap: 4px;
+      min-height: 0;
+      height: fit-content;
+    }
+
+    .grid-4-two-wide .media-wrapper:nth-child(1) {
+      grid-row: 1 / 4;
+      grid-column: 1 / 2;
+      min-height: 0;
+      height: 100%;
+      /* 可选：进一步控制宽度 */
+      width: 100%; /* 或者用 margin-right 控制 */
+    }
+
+    .grid-4-two-wide .media-wrapper:nth-child(2),
+    .grid-4-two-wide .media-wrapper:nth-child(3),
+    .grid-4-two-wide .media-wrapper:nth-child(4) { 
+      grid-column: 2 / 3; 
+      min-height: 0;
+      height: 100%;
+    }
+
+    .grid-4-two-wide .media-wrapper:nth-child(2) { grid-row: 1 / 2; }
+    .grid-4-two-wide .media-wrapper:nth-child(3) { grid-row: 2 / 3; }
+    .grid-4-two-wide .media-wrapper:nth-child(4) { grid-row: 3 / 4; }
+
+    /* 上1下3垂直排列布局  */
+    .grid-4-top-wide {
+      grid-template-columns: 1fr 1fr 1fr; /* 下面3个图片需要3列 */
+      grid-template-rows: 3fr 1fr; /* 上面1个占2份高度，下面3个占1份高度 */
+      gap: 4px;
+      min-height: 0;
+      width: fit-content;
+    }
+
+    .grid-4-top-wide .media-wrapper:nth-child(1) {
+      grid-column: 1 / 4; /* 占据全部3列 */
+      grid-row: 1 / 2;    /* 只占第1行 */
+      min-height: 0;
+      width: 100%;
+    }
+
+    .grid-4-top-wide .media-wrapper:nth-child(2) { 
+      grid-column: 1; 
+      grid-row: 2; 
+      min-height: 0;
+    }
+    .grid-4-top-wide .media-wrapper:nth-child(3) { 
+      grid-column: 2; 
+      grid-row: 2; 
+      min-height: 0;
+    }
+    .grid-4-top-wide .media-wrapper:nth-child(4) { 
+      grid-column: 3; 
+      grid-row: 2; 
+      min-height: 0;
+    }
+
+
+    /* ---------- 🔢 5张图布局 ---------- */
+
+    /* 🟦 grid-5-top2-bottom3 ：上1中间2下2布局（保留原版结构） */
+    .media-group.grid-5-top2-bottom3 {
+      display: grid;
+      gap: 4px;
+      grid-template-columns: repeat(2, 1fr);
+      border-radius: 8px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    /* 第一张图跨两列（上 1 张）*/
+    .media-group.grid-5-top2-bottom3 .media-wrapper:nth-child(1) {
+      grid-column: 1 / 3;
+    }
+
+    /* 剩下的四张图自然按两列自动排列 */
+    .media-group.grid-5-top2-bottom3 .media-wrapper {
+      aspect-ratio: 3/2;
+    }
+
+    .media-group.grid-5-top2-bottom3 img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+
+    /* 🟩 grid-5-left3top2 ：上 2 下 3 */
+    .media-group.grid-5-left3top2 {
+      display: grid;
+      width: 100%;
+      gap: 4px;
+      box-sizing: border-box;
+      /* 上面 2 图、下面 3 图：用 6 列的比例实现 1/2 和 1/3 分割 */
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: 1.5fr 1fr; /* 上排稍高，接近 Telegram 视觉比例 */
+      grid-auto-flow: row;
+    }
+    /* ---- 子元素定位 ---- */
+    /* 上排两张：各占 3/6 = 一半 */
+    .media-group.grid-5-left3top2 .media-wrapper:nth-child(1) {
+      grid-column: 1 / span 3;
+      grid-row: 1 / 2;
+    }
+    .media-group.grid-5-left3top2 .media-wrapper:nth-child(2) {
+      grid-column: 4 / span 3;
+      grid-row: 1 / 2;
+    }
+
+    /* 下排三张：各占 2/6 = 三等分 */
+    .media-group.grid-5-left3top2 .media-wrapper:nth-child(3) {
+      grid-column: 1 / span 2;
+      grid-row: 2 / 3;
+    }
+    .media-group.grid-5-left3top2 .media-wrapper:nth-child(4) {
+      grid-column: 3 / span 2;
+      grid-row: 2 / 3;
+    }
+    .media-group.grid-5-left3top2 .media-wrapper:nth-child(5) {
+      grid-column: 5 / span 2;
+      grid-row: 2 / 3;
+    }
+
+    /* ---- 图片样式 ---- */
+    .media-group.grid-5-left3top2 img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+
+    /* ---------- 🔢 6张图布局 ---------- */
+    .media-group[class*="grid-6-"] {
+      display: grid;
+      gap: 4px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    /* 图片通用样式 */
+    .media-group[class*="grid-6-"] .media-wrapper {
+      aspect-ratio: 4/5;
+    }
+    .media-group[class*="grid-6-"] img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ---------- 🔹 ① grid-6-balanced ：2x3 平均网格 ---------- */
+    .media-group.grid-6-balanced {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .media-group.grid-6-balanced .media-wrapper {
+      aspect-ratio: 1 / 1;
+    }
+
+    /* ---------- 🔹 上1 中间2 下3 布局 ---------- */
+    .grid-6-top1-mid2-bottom3 {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr); 
+      grid-template-rows: 2.025fr 1.5fr 1fr;       
+      gap: 4px;                              
+      max-width: 100%;                      
+      height: auto;                         
+    }
+
+    /* 通用媒体样式 */
+    .grid-6-top1-mid2-bottom3 .media-wrapper {
+      width: 100%;
+      object-fit: cover;
+    }
+
+    /* 上方 1 张图：横跨整行 */
+    .grid-6-top1-mid2-bottom3 .media-wrapper:nth-child(1) {
+      grid-column: 1 / -1; /* 横跨所有列 */
+      grid-row: 1;
+      aspect-ratio: 3 / 2;
+    }
+
+    /* 中间 2 张图：左右各一张 */
+    .grid-6-top1-mid2-bottom3 .media-wrapper:nth-child(2),
+    .grid-6-top1-mid2-bottom3 .media-wrapper:nth-child(3) {
+      grid-row: 2;
+      aspect-ratio: 1 / 1;
+    }
+
+    .grid-6-top1-mid2-bottom3 .media-wrapper:nth-child(2) {
+      grid-column: 1 / 4; /* 左侧三列 */
+    }
+
+    .grid-6-top1-mid2-bottom3 .media-wrapper:nth-child(3) {
+      grid-column: 4 / 7; /* 右侧三列 */
+    }
+
+    /* 下方 3 张图：平均分布 */
+    .grid-6-top1-mid2-bottom3 .media-wrapper:nth-child(4),
+    .grid-6-top1-mid2-bottom3 .media-wrapper:nth-child(5),
+    .grid-6-top1-mid2-bottom3 .media-wrapper:nth-child(6) {
+      grid-row: 3;
+      aspect-ratio: 1 / 1;
+    }
+
+    .grid-6-top1-mid2-bottom3 .media-wrapper:nth-child(4) {
+      grid-column: 1 / 3;
+    }
+
+    .grid-6-top1-mid2-bottom3 .media-wrapper:nth-child(5) {
+      grid-column: 3 / 5;
+    }
+
+    .grid-6-top1-mid2-bottom3 .media-wrapper:nth-child(6) {
+      grid-column: 5 / 7;
+    }
+
+    /* ---------- 🔹 ③ grid-6-top1-mid1-bottom4 ：上1 中间1 下4 ---------- */
+    .grid-6-top1-mid1-bottom4 {
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: 1.8fr 1.8fr 1fr; /* 从 1.5fr 微调到 1.4fr */
+      gap: 4px; /* 从 4px 微调到 3px */
+      min-height: 0;
+      margin: 0 auto;
+    }
+
+    /* 上1张 */
+    .grid-6-top1-mid1-bottom4 .media-wrapper:nth-child(1) {
+      grid-column: 1 / 5;
+      grid-row: 1 / 2;
+      aspect-ratio: 3 / 2;
+    }
+
+    /* 中间1张 */
+    .grid-6-top1-mid1-bottom4 .media-wrapper:nth-child(2) {
+      grid-column: 1 / 5;
+      grid-row: 2 / 3;
+      aspect-ratio: 3 / 2;
+    }
+
+    /* 下4张 */
+    .grid-6-top1-mid1-bottom4 .media-wrapper:nth-child(3) {
+      grid-column: 1 / 2;
+      grid-row: 3 / 4;
+      aspect-ratio: 1 / 1.5;
+    }
+    .grid-6-top1-mid1-bottom4 .media-wrapper:nth-child(4) {
+      grid-column: 2 / 3;
+      grid-row: 3 / 4;
+      aspect-ratio: 1 / 1.5;
+    }
+    .grid-6-top1-mid1-bottom4 .media-wrapper:nth-child(5) {
+      grid-column: 3 / 4;
+      grid-row: 3 / 4;
+      aspect-ratio: 1 / 1.5;
+    }
+    .grid-6-top1-mid1-bottom4 .media-wrapper:nth-child(6) {
+      grid-column: 4 / 5;
+      grid-row: 3 / 4;
+      aspect-ratio: 1 / 1.5;
+    }
+     
+     
+    /*-------- 🔢 7张图布局 ---------*/
+
+    /* ---------- 🟦 变体①：上1 中间3 下3 ---------- */
+    .media-group.grid-7-top1-mid3-bottom3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto auto auto;
+      gap: 4px;
+    }
+
+    /* 上1张 */
+    .media-group.grid-7-top1-mid3-bottom3 .media-wrapper:nth-child(1) {
+      grid-column: 1 / 4;
+    }
+
+    /* 中间3张（第2~4张） */
+    .media-group.grid-7-top1-mid3-bottom3 .media-wrapper:nth-child(n+2):nth-child(-n+4) {
+      grid-row: 2;
+    }
+
+    /* 下3张（第5~7张） */
+    .media-group.grid-7-top1-mid3-bottom3 .media-wrapper:nth-child(n+5) {
+      grid-row: 3;
+    }
+
+
+    /* ---------- 🟩 变体②：上2 中间2 下3 ---------- */
+    .media-group.grid-7-top2-mid2-bottom3 {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr); /* 6列更精准控制比例 */
+      grid-template-rows: 1.5fr 1.5fr 1fr;     /* 上:中:下 高度比例 */
+      gap: 4px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    /* 上2张（第1~2张）→ 各占3列（共6列，对齐下方3张） */
+    .media-group.grid-7-top2-mid2-bottom3 .media-wrapper:nth-child(1) {
+      grid-column: 1 / 4; /* 左半 */
+      grid-row: 1;
+    }
+    .media-group.grid-7-top2-mid2-bottom3 .media-wrapper:nth-child(2) {
+      grid-column: 4 / 7; /* 右半 */
+      grid-row: 1;
+    }
+
+    /* 中间2张（第3~4张）→ 仍各占3列，略矮 */
+    .media-group.grid-7-top2-mid2-bottom3 .media-wrapper:nth-child(3) {
+      grid-column: 1 / 4;
+      grid-row: 2;
+    }
+    .media-group.grid-7-top2-mid2-bottom3 .media-wrapper:nth-child(4) {
+      grid-column: 4 / 7;
+      grid-row: 2;
+    }
+
+    /* 下3张（第5~7张）→ 每张占2列，共6列，宽度刚好与上对齐 */
+   .media-group.grid-7-top2-mid2-bottom3 .media-wrapper:nth-child(5) {
+     grid-column: 1 / 3;
+     grid-row: 3;
+    }
+    .media-group.grid-7-top2-mid2-bottom3 .media-wrapper:nth-child(6) {
+      grid-column: 3 / 5;
+      grid-row: 3;
+    }
+    .media-group.grid-7-top2-mid2-bottom3 .media-wrapper:nth-child(7) {
+      grid-column: 5 / 7;
+      grid-row: 3;
+    }
+
+    /* ✅ 图片比例优化（防止被撑长） */
+    .media-group.grid-7-top2-mid2-bottom3 .media-wrapper {
+      aspect-ratio: 4 / 3; /* 稍扁一些，更自然 */
+      overflow: hidden;
+    }
+    .media-group.grid-7-top2-mid2-bottom3 img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+
+     /* ---------- 🟥 变体③：上1 中间2 中间下2 底部2（最终改进版） ---------- */
+    .media-group.grid-7-top1-mid2-mid2-bottom2 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); /* 保持灵活宽度 */
+      grid-template-rows: 2fr 1fr 1fr 1fr; /* 上高，中略矮，下最矮 */
+      gap: 4px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    /* 上1张（占满4列） */
+    .media-group.grid-7-top1-mid2-mid2-bottom2 .media-wrapper:nth-child(1) {
+      grid-column: 1 / 5;
+      grid-row: 1;
+    }
+
+    /* 中间2张（第2~3张） -> 各占2列 */
+    .media-group.grid-7-top1-mid2-mid2-bottom2 .media-wrapper:nth-child(2) {
+      grid-column: 1 / 3;
+      grid-row: 2;
+    }
+    .media-group.grid-7-top1-mid2-mid2-bottom2 .media-wrapper:nth-child(3) {
+      grid-column: 3 / 5;
+      grid-row: 2;
+    }
+
+    /* 中间下2张（第4~5张） */
+    .media-group.grid-7-top1-mid2-mid2-bottom2 .media-wrapper:nth-child(4) {
+      grid-column: 1 / 3;
+      grid-row: 3;
+    }
+    .media-group.grid-7-top1-mid2-mid2-bottom2 .media-wrapper:nth-child(5) {
+      grid-column: 3 / 5;
+      grid-row: 3;
+    }
+
+    /* 底部2张（第6~7张） */
+    .media-group.grid-7-top1-mid2-mid2-bottom2 .media-wrapper:nth-child(6) {
+      grid-column: 1 / 3;
+      grid-row: 4;
+    }
+    .media-group.grid-7-top1-mid2-mid2-bottom2 .media-wrapper:nth-child(7) {
+      grid-column: 3 / 5;
+      grid-row: 4;
+    }
+
+    /* ✅ 图片比例控制（防止汽包被撑长） */
+    .media-group.grid-7-top1-mid2-mid2-bottom2 .media-wrapper {
+      aspect-ratio: 4 / 3; /* 自然比例，略扁 */
+      overflow: hidden;
+    }
+    .media-group.grid-7-top1-mid2-mid2-bottom2 img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+
+    /* ---------- 🟦 变体④：上3 中间1 下3 ---------- */
+    .media-group.grid-7-top3-mid1-bottom3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* 三等分列 */
+      grid-template-rows: auto auto auto; /* 三层 */
+      gap: 4px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    /* 上3张（第1~3张） */
+    .media-group.grid-7-top3-mid1-bottom3 .media-wrapper:nth-child(1),
+    .media-group.grid-7-top3-mid1-bottom3 .media-wrapper:nth-child(2),
+    .media-group.grid-7-top3-mid1-bottom3 .media-wrapper:nth-child(3) {
+      grid-row: 1;
+    }
+
+    /* 中间1张（第4张）→ 横跨 1 / 4，占满整个宽度 */
+    .media-group.grid-7-top3-mid1-bottom3 .media-wrapper:nth-child(4) {
+      grid-column: 1 / 4;
+      grid-row: 2;
+      aspect-ratio: 3 / 1.5; /* 高度约为上层的2倍 */
+    }
+
+    /* 下3张（第5~7张） */
+    .media-group.grid-7-top3-mid1-bottom3 .media-wrapper:nth-child(5),
+    .media-group.grid-7-top3-mid1-bottom3 .media-wrapper:nth-child(6),
+    .media-group.grid-7-top3-mid1-bottom3 .media-wrapper:nth-child(7) {
+      grid-row: 3;
+    }
+
+    /* ✅ 通用图片样式 */
+    .media-group.grid-7-top3-mid1-bottom3 .media-wrapper {
+      aspect-ratio: 4 / 3; /* 上、下层默认比例 */
+      overflow: hidden;
+    }
+
+    .media-group.grid-7-top3-mid1-bottom3 img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+
+
+    /* ---------- 🔢 8张图布局 ---------- */
+    .media-group[class*="grid-8-"] .media-wrapper {
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      border-radius: 6px;
+    }
+    .media-group[class*="grid-8-"] img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ---------- 🟦 变体①：上2 中间3 下3 ---------- */
+    .media-group.grid-8-top2-mid3-bottom3 {
+      display: grid;
+      gap: 4px; /* 稍微放大间距让画面更有呼吸感 */
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: 3fr 1fr 1fr; /* ✅ 上层明显更高、更大气 */
+    }
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper {
+      width: 100%;
+      height: 100%; /* ✅ 高度由行高决定 */
+      object-fit: cover;
+    }
+    /* 上层（第1行，2张） */
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(1),
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(2) {
+      grid-row: 1;
+      object-fit: cover;
+    }
+
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(1) {
+      grid-column: 1 / span 3;
+    }
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(2) {
+      grid-column: 4 / span 3;
+    }
+
+    /* 中层（第2行，3张） */
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(3),
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(4),
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(5) {
+      grid-row: 2;
+      aspect-ratio: 1 / 1; /* 中层标准方形 */
+    }
+
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(3) {
+      grid-column: 1 / span 2;
+    }
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(4) {
+      grid-column: 3 / span 2;
+    }
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(5) {
+      grid-column: 5 / span 2;
+    }
+
+    /* 下层（第3行，3张） */
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(6),
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(7),
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(8) {
+      grid-row: 3;
+      aspect-ratio: 1 / 1; /* 与中层保持一致 */
+    }
+
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(6) {
+      grid-column: 1 / span 2;
+    }
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(7) {
+      grid-column: 3 / span 2;
+    }
+    .media-group.grid-8-top2-mid3-bottom3 .media-wrapper:nth-child(8) {
+      grid-column: 5 / span 2;
+    }
+
+
+    /* ---------- 🟩 变体②：上1 中间2 中间下2 底部3（终极优化版） ---------- */
+    .media-group.grid-8-top1-mid2-mid2-bottom3 {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr); /* 6列：保证 2×3=6 对齐 */
+      grid-template-rows: auto auto auto auto;
+      gap: 4px;
+    }
+
+    /* 上1张（第1张） */
+    .media-group.grid-8-top1-mid2-mid2-bottom3 .media-wrapper:nth-child(1) {
+      grid-column: 1 / 7; /* 占满6列 */
+      grid-row: 1;
+    }
+
+    /* 中间2张（第2~3张） */
+    .media-group.grid-8-top1-mid2-mid2-bottom3 .media-wrapper:nth-child(2) {
+      grid-column: 1 / 4; /* 左半行，占3列 */
+      grid-row: 2;
+    }
+    .media-group.grid-8-top1-mid2-mid2-bottom3 .media-wrapper:nth-child(3) {
+      grid-column: 4 / 7; /* 右半行，占3列 */
+      grid-row: 2;
+    }
+
+    /* 中间下2张（第4~5张） */
+    .media-group.grid-8-top1-mid2-mid2-bottom3 .media-wrapper:nth-child(4) {
+      grid-column: 1 / 4; /* 左半行，占3列 */
+      grid-row: 3;
+    }
+    .media-group.grid-8-top1-mid2-mid2-bottom3 .media-wrapper:nth-child(5) {
+      grid-column: 4 / 7; /* 右半行，占3列 */
+      grid-row: 3;
+    }
+
+    /* 底部3张（第6~8张） */
+    .media-group.grid-8-top1-mid2-mid2-bottom3 .media-wrapper:nth-child(6) {
+      grid-column: 1 / 3; /* 每张占2列 */
+      grid-row: 4;
+    }
+    .media-group.grid-8-top1-mid2-mid2-bottom3 .media-wrapper:nth-child(7) {
+      grid-column: 3 / 5;
+      grid-row: 4;
+    }
+    .media-group.grid-8-top1-mid2-mid2-bottom3 .media-wrapper:nth-child(8) {
+      grid-column: 5 / 7;
+      grid-row: 4;
+    }
+
+
+    /* ---------- 🟥 变体③：上3 中间2 下3（整体放大版） ---------- */
+    .media-group.grid-8-top3-mid2-bottom3 {
+      display: grid;
+      gap: 4px; 
+      grid-template-columns: repeat(6, 1fr); 
+      grid-template-rows: 2fr 3fr 2fr; /* 上:中:下 高度比例整体放大 */
+    }
+
+    /* 上3张 */
+    .media-group.grid-8-top3-mid2-bottom3 .media-wrapper:nth-child(1) { grid-column: 1 / span 2; grid-row: 1; }
+    .media-group.grid-8-top3-mid2-bottom3 .media-wrapper:nth-child(2) { grid-column: 3 / span 2; grid-row: 1; }
+    .media-group.grid-8-top3-mid2-bottom3 .media-wrapper:nth-child(3) { grid-column: 5 / span 2; grid-row: 1; }
+
+    /* 中间2张 */
+    .media-group.grid-8-top3-mid2-bottom3 .media-wrapper:nth-child(4) { grid-column: 1 / span 3; grid-row: 2; }
+    .media-group.grid-8-top3-mid2-bottom3 .media-wrapper:nth-child(5) { grid-column: 4 / span 3; grid-row: 2; }
+
+    /* 下3张 */
+    .media-group.grid-8-top3-mid2-bottom3 .media-wrapper:nth-child(6) { grid-column: 1 / span 2; grid-row: 3; }
+    .media-group.grid-8-top3-mid2-bottom3 .media-wrapper:nth-child(7) { grid-column: 3 / span 2; grid-row: 3; }
+    .media-group.grid-8-top3-mid2-bottom3 .media-wrapper:nth-child(8) { grid-column: 5 / span 2; grid-row: 3; }
+
+    /* 所有图片填满格子 */
+    .media-group.grid-8-top3-mid2-bottom3 .media-wrapper {
+       width: 100%;
+       height: 100%;
+       object-fit: cover;
+    }
+
+
+
+    /* ---------- 🔢 9张图布局 ---------- */
+
+    /* ---------- 🔹 变体①：3x3 网格 ---------- */
+    .media-group.grid-9-3x3 {
+      display: grid;
+      gap: 4px;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr); /* 每行等高 */
+    }
+
+    .media-group.grid-9-3x3 .media-wrapper {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ---------- 🔹 变体②：上1 中间2 中间下3 底部3 ---------- */
+    .media-group.grid-9-top1-mid2-mid3-bottom3 {
+      display: grid;
+      gap: 4px;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: 2fr 0.7fr 0.7fr 0.7fr; /* 上:中:中下:下，高度可调 */
+    }
+
+    .media-group.grid-9-top1-mid2-mid3-bottom3 .media-wrapper:nth-child(1) { grid-column: 1 / span 6; grid-row: 1; }
+    .media-group.grid-9-top1-mid2-mid3-bottom3 .media-wrapper:nth-child(2) { grid-column: 1 / span 3; grid-row: 2; }
+    .media-group.grid-9-top1-mid2-mid3-bottom3 .media-wrapper:nth-child(3) { grid-column: 4 / span 3; grid-row: 2; }
+    .media-group.grid-9-top1-mid2-mid3-bottom3 .media-wrapper:nth-child(4) { grid-column: 1 / span 2; grid-row: 3; }
+    .media-group.grid-9-top1-mid2-mid3-bottom3 .media-wrapper:nth-child(5) { grid-column: 3 / span 2; grid-row: 3; }
+    .media-group.grid-9-top1-mid2-mid3-bottom3 .media-wrapper:nth-child(6) { grid-column: 5 / span 2; grid-row: 3; }
+    .media-group.grid-9-top1-mid2-mid3-bottom3 .media-wrapper:nth-child(7) { grid-column: 1 / span 2; grid-row: 4; }
+    .media-group.grid-9-top1-mid2-mid3-bottom3 .media-wrapper:nth-child(8) { grid-column: 3 / span 2; grid-row: 4; }
+    .media-group.grid-9-top1-mid2-mid3-bottom3 .media-wrapper:nth-child(9) { grid-column: 5 / span 2; grid-row: 4; }
+
+    .media-group.grid-9-top1-mid2-mid3-bottom3 .media-wrapper {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ---------- 🔹 变体③：上2 中间2 中间下2 底部3 ---------- */
+    .media-group.grid-9-top2-mid2-mid2-bottom3 {
+      display: grid;
+      gap: 4px;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: 2fr 2fr 2fr 2fr; /* 可调整体大小比例 */
+    }
+
+    /* 上2张 */
+    .media-group.grid-9-top2-mid2-mid2-bottom3 .media-wrapper:nth-child(1) { grid-column: 1 / span 3; grid-row: 1; }
+    .media-group.grid-9-top2-mid2-mid2-bottom3 .media-wrapper:nth-child(2) { grid-column: 4 / span 3; grid-row: 1; }
+
+    /* 中间2张 */
+    .media-group.grid-9-top2-mid2-mid2-bottom3 .media-wrapper:nth-child(3) { grid-column: 1 / span 3; grid-row: 2; }
+    .media-group.grid-9-top2-mid2-mid2-bottom3 .media-wrapper:nth-child(4) { grid-column: 4 / span 3; grid-row: 2; }
+
+    /* 中间下2张 */
+    .media-group.grid-9-top2-mid2-mid2-bottom3 .media-wrapper:nth-child(5) { grid-column: 1 / span 3; grid-row: 3; }
+    .media-group.grid-9-top2-mid2-mid2-bottom3 .media-wrapper:nth-child(6) { grid-column: 4 / span 3; grid-row: 3; }
+
+   /* 底部3张 */
+   .media-group.grid-9-top2-mid2-mid2-bottom3 .media-wrapper:nth-child(7) { grid-column: 1 / span 2; grid-row: 4; }
+   .media-group.grid-9-top2-mid2-mid2-bottom3 .media-wrapper:nth-child(8) { grid-column: 3 / span 2; grid-row: 4; }
+   .media-group.grid-9-top2-mid2-mid2-bottom3 .media-wrapper:nth-child(9) { grid-column: 5 / span 2; grid-row: 4; }
+
+   .media-group.grid-9-top2-mid2-mid2-bottom3 .media-wrapper {
+     width: 100%;
+     height: 100%;
+     object-fit: cover;
+    }
+
+
+
+   /* ---------- 🔢 10张图布局 ---------- */
+
+   /* ---------- 🔹 变体①：上1 中间3 中间下3 底部3 ---------- */
+   .media-group.grid-10-top1-mid3-mid3-bottom3 {
+     display: grid;
+     gap: 4px;
+     grid-template-columns: repeat(6, 1fr); /* 6列方便分配 */
+     grid-template-rows: 2fr 1fr 1fr 1fr; /* 上:中:中下:下 */
+    }
+
+    /* 上1张 */
+    .media-group.grid-10-top1-mid3-mid3-bottom3 .media-wrapper:nth-child(1) {
+      grid-column: 1 / span 6;
+      grid-row: 1;
+    }
+
+    /* 中间3张 */
+    .media-group.grid-10-top1-mid3-mid3-bottom3 .media-wrapper:nth-child(2) {
+      grid-column: 1 / span 2; grid-row: 2;
+    }
+    .media-group.grid-10-top1-mid3-mid3-bottom3 .media-wrapper:nth-child(3) {
+      grid-column: 3 / span 2; grid-row: 2;
+    }
+    .media-group.grid-10-top1-mid3-mid3-bottom3 .media-wrapper:nth-child(4) {
+      grid-column: 5 / span 2; grid-row: 2;
+    }
+
+    /* 中间下3张 */
+    .media-group.grid-10-top1-mid3-mid3-bottom3 .media-wrapper:nth-child(5) {
+      grid-column: 1 / span 2; grid-row: 3;
+    }
+    .media-group.grid-10-top1-mid3-mid3-bottom3 .media-wrapper:nth-child(6) {
+      grid-column: 3 / span 2; grid-row: 3;
+    }
+    .media-group.grid-10-top1-mid3-mid3-bottom3 .media-wrapper:nth-child(7) {
+      grid-column: 5 / span 2; grid-row: 3;
+    }
+
+    /* 底部3张 */
+    .media-group.grid-10-top1-mid3-mid3-bottom3 .media-wrapper:nth-child(8) {
+      grid-column: 1 / span 2; grid-row: 4;
+    }
+    .media-group.grid-10-top1-mid3-mid3-bottom3 .media-wrapper:nth-child(9) {
+      grid-column: 3 / span 2; grid-row: 4;
+    }
+    .media-group.grid-10-top1-mid3-mid3-bottom3 .media-wrapper:nth-child(10) {
+      grid-column: 5 / span 2; grid-row: 4;
+    }
+
+    /* 图片自适应汽包 */
+    .media-group.grid-10-top1-mid3-mid3-bottom3 .media-wrapper {
+      width: 100%;
+      height: 100%;
+    }
+    .media-group.grid-10-top1-mid3-mid3-bottom3 img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ---------- 🔹 变体②：上2 中间2 中间下3 底部3 ---------- */
+    .media-group.grid-10-top2-mid2-mid3-bottom3 {
+      display: grid;
+      gap: 4px;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: 1.5fr 1fr 1fr 1fr; /* 上:中:中下:下 */
+    }
+
+    /* 上2张 */
+    .media-group.grid-10-top2-mid2-mid3-bottom3 .media-wrapper:nth-child(1) {
+      grid-column: 1 / span 3; grid-row: 1;
+    }
+    .media-group.grid-10-top2-mid2-mid3-bottom3 .media-wrapper:nth-child(2) {
+      grid-column: 4 / span 3; grid-row: 1;
+    }
+
+    /* 中间2张 */
+    .media-group.grid-10-top2-mid2-mid3-bottom3 .media-wrapper:nth-child(3) {
+      grid-column: 1 / span 3; grid-row: 2;
+    }
+    .media-group.grid-10-top2-mid2-mid3-bottom3 .media-wrapper:nth-child(4) {
+      grid-column: 4 / span 3; grid-row: 2;
+    }
+
+    /* 中间下3张 */
+    .media-group.grid-10-top2-mid2-mid3-bottom3 .media-wrapper:nth-child(5) {
+      grid-column: 1 / span 2; grid-row: 3;
+    }
+    .media-group.grid-10-top2-mid2-mid3-bottom3 .media-wrapper:nth-child(6) {
+      grid-column: 3 / span 2; grid-row: 3;
+    }
+    .media-group.grid-10-top2-mid2-mid3-bottom3 .media-wrapper:nth-child(7) {
+      grid-column: 5 / span 2; grid-row: 3;
+    }
+
+    /* 底部3张 */
+    .media-group.grid-10-top2-mid2-mid3-bottom3 .media-wrapper:nth-child(8) {
+      grid-column: 1 / span 2; grid-row: 4;
+    }
+    .media-group.grid-10-top2-mid2-mid3-bottom3 .media-wrapper:nth-child(9) {
+      grid-column: 3 / span 2; grid-row: 4;
+    }
+    .media-group.grid-10-top2-mid2-mid3-bottom3 .media-wrapper:nth-child(10) {
+      grid-column: 5 / span 2; grid-row: 4;
+    }
+
+    .media-group.grid-10-top2-mid2-mid3-bottom3 .media-wrapper {
+      width: 100%;
+      height: 100%;
+    }
+    .media-group.grid-10-top2-mid2-mid3-bottom3 img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* ---------- 🔹 变体③：上3 中间4 下3 ---------- */
+    .media-group.grid-10-top3-mid4-bottom3 {
+      display: grid;
+      gap: 4px;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: 1.3fr 1fr 1.3fr; /* 上下稍高，中间略矮 */
+    }
+
+    /* 上3张（平均三等分） */
+    .media-group.grid-10-top3-mid4-bottom3 .media-wrapper:nth-child(1) {
+      grid-column: 1 / span 4; grid-row: 1;
+    }
+    .media-group.grid-10-top3-mid4-bottom3 .media-wrapper:nth-child(2) {
+      grid-column: 5 / span 4; grid-row: 1;
+    }
+    .media-group.grid-10-top3-mid4-bottom3 .media-wrapper:nth-child(3) {
+      grid-column: 9 / span 4; grid-row: 1;
+    }
+
+    /* ✅ 中间4张（更宽、更自然） */
+    .media-group.grid-10-top3-mid4-bottom3 .media-wrapper:nth-child(4) {
+      grid-column: 1 / span 3; grid-row: 2;
+    }
+    .media-group.grid-10-top3-mid4-bottom3 .media-wrapper:nth-child(5) {
+      grid-column: 4 / span 3; grid-row: 2;
+    }
+    .media-group.grid-10-top3-mid4-bottom3 .media-wrapper:nth-child(6) {
+      grid-column: 7 / span 3; grid-row: 2;
+    }
+    .media-group.grid-10-top3-mid4-bottom3 .media-wrapper:nth-child(7) {
+      grid-column: 10 / span 3; grid-row: 2;
+    }
+
+    /* 下3张（与上3完全对称） */
+    .media-group.grid-10-top3-mid4-bottom3 .media-wrapper:nth-child(8) {
+      grid-column: 1 / span 4; grid-row: 3;
+    }
+    .media-group.grid-10-top3-mid4-bottom3 .media-wrapper:nth-child(9) {
+      grid-column: 5 / span 4; grid-row: 3;
+    }
+    .media-group.grid-10-top3-mid4-bottom3 .media-wrapper:nth-child(10) {
+      grid-column: 9 / span 4; grid-row: 3;
+    }
+
+    /* 公共样式 */
+    .media-group.grid-10-top3-mid4-bottom3 .media-wrapper {
+      width: 100%;
+      height: 100%;
+    }
+    .media-group.grid-10-top3-mid4-bottom3 img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+
+    /* ---------- 📝 媒体描述文字 ---------- */
+    .caption {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #aaa;
+      text-align: left;
+      line-height: 1.4;
+    }
+
+    /* ====================
+       🔄 媒体加载状态
+    ==================== */
+    .media-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #2a2a2a;
+      color: #666;
+      font-size: 12px;
+    }
+
+    .media-loading {
+      background: #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading-spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #333;
+      border-top: 2px solid #66b3ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* ---------- 🎥 视频播放按钮 ---------- */
+    .video-play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .media-wrapper:hover .video-play-button {
+      opacity: 1;
+    }
+
+    /* ====================
+       ⌨️ 输入区域
+    ==================== */
+    form {
+      display: flex;
+      padding: 0.5rem;
+      background-color: #1a1a1a;
+      border-top: 1px solid #333;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 0.8rem;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+      background-color: #2b2b2b;
+      color: #fff;
+    }
+
+    button {
+      margin-left: 0.5rem;
+      padding: 0.8rem 1rem;
+      font-size: 16px;
+      background-color: #3399ff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #227acc;
+    }
+
+    /* ====================
+       👁️ 媒体预览系统
+    ==================== */
+    #previewOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0,0,0,0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #previewContent {
+      max-width: 95vw;
+      max-height: 95vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #previewContent img,
+    #previewContent video {
+      max-width: 100%;
+      max-height: 95vh;
+      object-fit: contain;
+    }
+
+    /* ---------- ↩️ 视频返回箭头 ---------- */
+    .video-back-arrow {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: rgba(255, 166, 77, 0.5);
+      font-size: 24px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: 10000;
+      width: auto;
+      height: auto;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #previewOverlay:hover .video-back-arrow {
+      opacity: 1;
+    }
+
+    .video-back-arrow:hover {
+      opacity: 1 !important;
+    }
+
+    /* ---------- 💡 滑动提示 ---------- */
+    .swipe-hint {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255,255,255,0.7);
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    #previewOverlay:hover .swipe-hint {
+      opacity: 1;
+    }
+
+    /* ====================
+       🔄 加载状态指示器
+    ==================== */
+    .loading-indicator {
+      text-align: center;
+      color: #666;
+      padding: 10px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .light-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #333;
+      border-top: 2px solid #66b3ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .nomore {
+      text-align: center;
+      color: #666;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <header>资源联盟聊天室</header>
+
+  <div id="chat-container">
+    <!-- 动态插入消息的区域 -->
+  </div>
+
+  <!-- 统一预览窗口 -->
+  <div id="previewOverlay">
+    <div class="video-back-arrow" onclick="closePreview()">←</div>
+    <div id="previewContent"></div>
+    <div class="swipe-hint">左右滑动切换</div>
+  </div>
+
+  <!-- 底部输入区 -->
+  <form id="chatForm">
+    <input type="text" id="messageInput" placeholder="输入消息..." autocomplete="off" required />
+    <button type="submit">发送</button>
+  </form>
+
+  <script src="/socket.io/socket.io.js"></script>
+   
+  <script>
+    /* ---------- 🌐 全局变量声明 ---------- */
+    const socket = io();
+    const chatContainer = document.getElementById('chat-container');
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('messageInput');
+    const previewOverlay = document.getElementById('previewOverlay');
+    const previewContent = document.getElementById('previewContent');
+    
+    // 状态管理变量
+    let loading = false;
+    let allLoaded = false;
+    let oldestSortKey = null;
+    let oldestId = null;
+    let initialLoad = true;
+    let username = '游客';
+    
+    // 滚动状态管理
+    let userIsScrolling = false;
+    let userIsViewingHistory = false;
+    let autoScrollEnabled = true;
+    let scrollDebounceTimer = null;
+    
+    // 媒体相关
+    let lazyMediaObserver = null;
+    let currentMediaIndex = 0;
+    let mediaList = [];
+    let currentPlayingVideo = null;
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    // 预览状态
+    let arrowTimeout = null;
+    let isVideoMode = false;
+    let forceLoadMore = false;
+
+    /* ---------- 🚀 初始化函数 ---------- */
+    function initApp() {
+      initUser();
+      initLazyMediaObserver();
+      initEventListeners();
+      loadMessages();
+    }
+
+    /* ---------- 👤 用户信息初始化 ---------- */
+    async function initUser() {
+      try {
+        const res = await fetch('/api/me');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.username) {
+            username = data.username;             
+            localStorage.setItem('username', username); 
+          }
+        } else {
+          const stored = localStorage.getItem('username');
+          if (stored) username = stored;
+        }
+      } catch (err) {
+        console.error('获取用户信息失败:', err);
+        const stored = localStorage.getItem('username');
+        if (stored) username = stored;
+      }
+      socket.emit('join', username);
+    }
+    
+    /* ---------- 🎨 头像文字生成函数 ---------- */
+    function getAvatarText(username) {
+      if (!username || username === '游客') return '游客';
+       if (username === '系统提示') return '系统';
+  
+         // 清理用户名，移除空格和特殊字符
+         const cleanName = username.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '');
+ 
+         if (cleanName.length === 0) return '用户';
+  
+         // 中文：取前2个字符
+         if (/[\u4e00-\u9fa5]/.test(cleanName)) {
+            return cleanName.length >= 2 ? cleanName.substring(0, 2) : cleanName + ' ';
+          }
+  
+         // 英文：取前2个字母的大写
+         const englishMatch = cleanName.match(/[a-zA-Z]/g);
+          if (englishMatch && englishMatch.length >= 2) {
+          return englishMatch.slice(0, 2).join('').toUpperCase();
+        }
+  
+        // 其他情况：取前2个字符
+        return cleanName.length >= 2 ? cleanName.substring(0, 2) : cleanName + ' ';
+      }
+
+
+    /* ---------- 🔍 懒加载观察器初始化 ---------- */
+    function initLazyMediaObserver() {
+      lazyMediaObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const placeholder = entry.target;
+            loadMediaElement(placeholder);
+            lazyMediaObserver.unobserve(placeholder);
+          }
+        });
+      }, {
+        rootMargin: '300px',
+        threshold: 0.3
+      });
+    }
+
+    /* ---------- 🎯 事件监听器初始化 ---------- */
+    function initEventListeners() {
+      form.addEventListener('submit', handleSubmit);
+
+      // 聊天消息接收
+      socket.on('chat message', (data) => {
+        const contentNode = document.createElement('div');
+        contentNode.innerText = data.text;
+        const newMessageEl = appendMessage(contentNode, data.sender, data.timestamp);
+        
+        if (shouldAutoScrollToBottom()) {
+          scrollToBottom(true);
+        }
+      });
+
+      // Telegram 消息组接收
+      socket.on('telegramGroup', (group) => {
+        console.log('接收到 Telegram 消息组:', group);
+        const newMessageEl = processIncomingMessage(group, false, false);
+        
+        if (shouldAutoScrollToBottom()) {
+          scrollToBottom(true);
+        }
+        
+        observeMediaElements(newMessageEl);
+      });
+
+      // 滚动事件监听
+      chatContainer.addEventListener("scroll", handleScroll);
+      
+      // 预览窗口事件
+      previewOverlay.addEventListener('click', handlePreviewClick);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    /* ---------- 📚 消息加载系统 ---------- */
+    async function loadMessages(isLoadOld = false) {
+      if (loading || (isLoadOld && allLoaded)) return;
+      loading = true;
+
+      if (isLoadOld) showLoadingIndicator();
+      const prevAutoScroll = autoScrollEnabled;
+      autoScrollEnabled = false;
+
+      try {
+        const beforeParam = isLoadOld && oldestSortKey && oldestId
+          ? `?beforeSortKey=${encodeURIComponent(oldestSortKey)}&beforeId=${oldestId}`
+          : "";
+        const res = await fetch(`/api/messages${beforeParam}`);
+        const result = await res.json();
+        const messages = result.messages || [];
+
+        if (!messages.length) {
+          if (!result.hasMore) allLoaded = true;
+          return;
+        }
+
+        window.loadedMessageIds ??= new Set();
+        const uniqueMessages = messages.filter((m) => !window.loadedMessageIds.has(m._id));
+        if (!uniqueMessages.length) return;
+
+        if (!isLoadOld) {
+          await handleInitialLoad(uniqueMessages);
+        } else {
+          await handleLoadMore(uniqueMessages);
+        }
+
+        if (!result.hasMore) {
+          allLoaded = true;
+          showNoMoreNotice();
+        }
+
+      } catch (err) {
+        console.error("加载消息失败:", err);
+      } finally {
+        loading = false;
+        initialLoad = false;
+        hideLoadingIndicator();
+        autoScrollEnabled = prevAutoScroll;
+      }
+    }
+
+    /* ---------- 📥 首次加载处理 ---------- */
+    async function handleInitialLoad(messages) {
+      chatContainer.style.opacity = "0";
+      chatContainer.innerHTML = "";
+
+      const reversedMessages = [...messages].reverse();
+      for (const msg of reversedMessages) {
+        const el = processIncomingMessage(msg, false, false);
+        if (el) observeMediaElements(el);
+        window.loadedMessageIds.add(msg._id);
+      }
+
+      const lastMsg = messages[messages.length - 1];
+      oldestSortKey = lastMsg.historySortKey;
+      oldestId = lastMsg._id;
+
+      requestAnimationFrame(() => {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        chatContainer.style.transition = "opacity 0.3s ease";
+        chatContainer.style.opacity = "1";
+      });
+
+      setTimeout(() => {
+        if (shouldForceLoadMore()) {
+          forceLoadMore = true;
+          loadMessages(true);
+        }
+      }, 100);
+    }
+
+    /* ---------- 📤 加载更多处理 ---------- */
+    async function handleLoadMore(messages) {
+      const referenceState = saveReferenceState();
+      const prevScrollHeight = chatContainer.scrollHeight;
+
+      for (const msg of messages) {
+        const el = processIncomingMessage(msg, true, false);
+        if (el) observeMediaElements(el);
+        window.loadedMessageIds.add(msg._id);
+      }
+
+      const lastMsg = messages[messages.length - 1];
+      oldestSortKey = lastMsg.historySortKey;
+      oldestId = lastMsg._id;
+
+      if (referenceState) {
+        adjustScrollPositionImmediate(referenceState, prevScrollHeight);
+      }
+
+      if (forceLoadMore) {
+        forceLoadMore = false;
+        setTimeout(() => {
+          if (shouldForceLoadMore()) {
+            forceLoadMore = true;
+            loadMessages(true);
+          }
+        }, 100);
+      }
+    }
+
+    /* ---------- 🎲 媒体布局系统 ---------- */
+    function getDeterministicLayout(mediaCount, messageId) {
+      const layoutTemplates = {
+        1: ['cols-1'],
+        2: ['grid-2-equal', 'grid-2-left-large'],
+        3: ['grid-3-left1-right2', 'grid-3-top1-bottom2'],
+        4: ['grid-4-equal', 'grid-4-two-wide','grid-4-top-wide'],
+        5: ['grid-5-top2-bottom3', 'grid-5-left3top2'],
+        6: ['grid-6-balanced', 'grid-6-top1-mid2-bottom3', 'grid-6-top1-mid1-bottom4'],
+        7: ['grid-7-top1-mid3-bottom3','grid-7-top2-mid2-bottom3','grid-7-top1-mid2-mid2-bottom2','grid-7-top3-mid1-bottom3'],
+        8: ['grid-8-top2-mid3-bottom3','grid-8-top1-mid2-mid2-bottom3','grid-8-top3-mid2-bottom3'],
+        9: ['grid-9-3x3','grid-9-top1-mid2-mid3-bottom3','grid-9-top2-mid2-mid2-bottom3'],
+        10: ['grid-10-top1-mid3-mid3-bottom3','grid-10-top2-mid2-mid3-bottom3','grid-10-top3-mid4-bottom3']
+      };
+
+      const availableLayouts = layoutTemplates[mediaCount] || ['grid-default'];
+      const hash = generateStableHash(messageId);
+      const randomIndex = Math.abs(hash) % availableLayouts.length;
+      return availableLayouts[randomIndex];
+    }
+
+    function generateStableHash(str) {
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+      }
+      return hash;
+    }
+
+    /* ---------- 🖼️ 媒体处理系统 ---------- */
+    function createMediaPlaceholder(media, messageId) {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'media-placeholder media-loading';
+      placeholder.innerHTML = '<div class="loading-spinner"></div>';
+      placeholder.dataset.messageId = messageId;
+      placeholder.dataset.mediaType = media.type;
+      placeholder.dataset.mediaUrl = media.url;
+      placeholder.dataset.thumbnail = media.thumbnail;
+      placeholder.dataset.caption = media.caption || '';
+      
+      return placeholder;
+    }
+
+    function loadMediaElement(placeholder) {
+      const { mediaType, mediaUrl, thumbnail, caption } = placeholder.dataset;
+      
+      if (mediaType === 'photo') {
+        loadImageMedia(placeholder, mediaUrl, caption);
+      } else if (mediaType === 'video') {
+        loadVideoMedia(placeholder, mediaUrl, thumbnail, caption);
+      }
+    }
+
+    function loadImageMedia(placeholder, url, caption) {
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = caption;
+      img.onload = () => placeholder.replaceWith(img);
+      img.onerror = () => showMediaError(placeholder);
+    }
+
+    function loadVideoMedia(placeholder, url, thumbnail, caption) {
+      const thumb = document.createElement('img');
+      thumb.src = thumbnail || '/default-thumb.jpg';
+      thumb.alt = caption;
+      thumb.classList.add('video-thumb');
+      thumb.dataset.videoUrl = url;
+      
+      const playBtn = document.createElement('div');
+      playBtn.classList.add('video-play-button');
+      playBtn.innerHTML = '▶';
+      
+      const wrapper = document.createElement('div');
+      // 复用占位容器的布局特性，避免替换瞬间导致网格高度塌陷
+      wrapper.classList.add('video-thumb-wrapper', 'media-placeholder');
+      wrapper.appendChild(thumb);
+      wrapper.appendChild(playBtn);
+      
+      placeholder.replaceWith(wrapper);
+    }
+
+    function showMediaError(placeholder) {
+      placeholder.className = 'media-placeholder';
+      placeholder.innerHTML = '加载失败';
+    }
+
+    /* ---------- 💬 消息处理系统 ---------- */
+    function processIncomingMessage(data, prepend = false, loadMedia = true) {
+      const medias = Array.isArray(data.medias) ? data.medias : [];
+
+      if (medias.length === 1 && medias[0].type === 'text') {
+        return processTextMessage({
+          from: { username: data.username || data.from?.username },
+          createdAt: data.createdAt,
+          content: { type: 'text', text: medias[0].caption || data.text || '(空消息)' }
+        }, prepend, loadMedia);
+      }
+
+      if (medias.length > 0) {
+        return processTelegramGroup({
+          from: { username: data.username || data.from?.username },
+          timestamp: data.createdAt,
+          caption: data.title || data.caption || data.text || '',
+          medias,
+          _id: data._id
+        }, prepend, loadMedia);
+      }
+
+      return processTextMessage({
+        from: { username: data.username || data.from?.username },
+        createdAt: data.createdAt,
+        content: { type: 'text', text: data.text || '(空消息)' }
+      }, prepend, loadMedia);
+    }
+
+    function processTextMessage(data, prepend = false, loadMedia = true) {
+      const senderName = data.from?.username || '系统';
+      const timestamp = data.createdAt;
+      const type = data.content?.type;
+      const caption = data.content?.caption || '';
+
+      const container = document.createElement('div');
+
+      if (type === 'photo' || type === 'video') {
+        createSingleMediaMessage(container, data, type, caption, loadMedia);
+      } else {
+        const contentNode = document.createElement('div');
+        contentNode.innerText = data.content?.text || data.text || '(空消息)';
+        return appendMessage(contentNode, senderName, timestamp, prepend);
+      }
+
+      return appendMessage(container, senderName, timestamp, prepend);
+    }
+
+    function processTelegramGroup(group, prepend = false, loadMedia = true) {
+      const senderName = group.from?.username || 'Telegram 用户';
+      const timestamp = group.timestamp;
+      const medias = group.medias || [];
+      const caption = group.caption || '';
+
+      const container = document.createElement('div');
+      const groupDiv = document.createElement('div');
+      groupDiv.classList.add('media-group');
+
+      const messageId = group._id || group.timestamp || group.createdAt || Date.now().toString();
+      const layoutClass = getDeterministicLayout(medias.length, messageId);
+      groupDiv.classList.add(layoutClass);
+
+      medias.forEach(media => {
+        const wrap = createMediaWrapper(media, messageId, loadMedia);
+        groupDiv.appendChild(wrap);
+      });
+
+      container.appendChild(groupDiv);
+
+      if (caption) {
+        const cap = document.createElement('div');
+        cap.classList.add('caption');
+        cap.innerText = caption;
+        container.appendChild(cap);
+      }
+
+      return appendMessage(container, senderName, timestamp, prepend);
+    }
+
+    function createSingleMediaMessage(container, data, type, caption, loadMedia) {
+      const groupDiv = document.createElement('div');
+      groupDiv.classList.add('media-group', 'grid-cols-1');
+      const wrap = document.createElement('div');
+      wrap.classList.add('media-wrapper');
+
+      if (type === 'photo') {
+        if (loadMedia) {
+          const img = document.createElement('img');
+          img.src = data.content.url;
+          img.alt = caption;
+          wrap.appendChild(img);
+        } else {
+          const placeholder = createMediaPlaceholder({
+            type: 'photo',
+            url: data.content.url,
+            caption: caption
+          }, data._id || Date.now().toString());
+          wrap.appendChild(placeholder);
+        }
+      } else {
+        if (loadMedia) {
+          const thumb = document.createElement('img');
+          thumb.src = '/default-thumb.jpg';
+          thumb.alt = caption;
+          thumb.classList.add('video-thumb');
+          thumb.dataset.videoUrl = data.content.url;
+
+          const playBtn = document.createElement('div');
+          playBtn.classList.add('video-play-button');
+          playBtn.innerHTML = '▶';
+
+          wrap.appendChild(thumb);
+          wrap.appendChild(playBtn);
+        } else {
+          const placeholder = createMediaPlaceholder({
+            type: 'video',
+            url: data.content.url,
+            thumbnail: '/default-thumb.jpg',
+            caption: caption
+          }, data._id || Date.now().toString());
+          wrap.appendChild(placeholder);
+        }
+      }
+
+      groupDiv.appendChild(wrap);
+      container.appendChild(groupDiv);
+
+      if (caption) {
+        const cap = document.createElement('div');
+        cap.classList.add('caption');
+        cap.innerText = caption;
+        container.appendChild(cap);
+      }
+    }
+
+    function createMediaWrapper(media, messageId, loadMedia) {
+      const wrap = document.createElement('div');
+      wrap.classList.add('media-wrapper');
+
+      if (media.type === 'photo' || media.type === 'video') {
+        if (loadMedia) {
+          if (media.type === 'photo') {
+            const img = document.createElement('img');
+            img.src = media.url;
+            img.alt = media.caption || '';
+            wrap.appendChild(img);
+          } else if (media.type === 'video') {
+            const thumb = document.createElement('img');
+            thumb.src = media.thumbnail || '/default-thumb.jpg';
+            thumb.alt = media.caption || '';
+            thumb.classList.add('video-thumb');
+            thumb.dataset.videoUrl = media.url;
+
+            const playBtn = document.createElement('div');
+            playBtn.classList.add('video-play-button');
+            playBtn.innerHTML = '▶';
+
+            wrap.appendChild(thumb);
+            wrap.appendChild(playBtn);
+          }
+        } else {
+          const placeholder = createMediaPlaceholder(media, messageId);
+          wrap.appendChild(placeholder);
+        }
+      } else if (media.type === 'document') {
+        const a = document.createElement('a');
+        a.href = media.url;
+        a.target = '_blank';
+        a.textContent = `📄 ${media.caption || '文件'}`;
+        a.style.color = '#66b3ff';
+        wrap.appendChild(a);
+      }
+
+      return wrap;
+    }
+
+    /* ---------- 👁️ 媒体预览系统 ---------- */
+    function openPreviewMedia(mediaElement, mediaArray, index) {
+      mediaList = mediaArray;
+      currentMediaIndex = index;
+      
+      updatePreviewContent();
+      previewOverlay.style.display = 'flex';
+      
+      previewOverlay.addEventListener('touchstart', handleTouchStart, false);
+      previewOverlay.addEventListener('touchend', handleTouchEnd, false);
+      
+      if (mediaList[currentMediaIndex]?.type === 'video') {
+        showExitArrow();
+      }
+    }
+
+    function updatePreviewContent() {
+      const mediaInfo = mediaList[currentMediaIndex];
+      previewContent.innerHTML = '';
+      
+      if (mediaInfo.type === 'photo') {
+        createImagePreview(mediaInfo);
+      } else if (mediaInfo.type === 'video') {
+        createVideoPreview(mediaInfo);
+      }
+    }
+
+    function createImagePreview(mediaInfo) {
+      const img = document.createElement('img');
+      img.src = mediaInfo.url;
+      img.alt = mediaInfo.caption || '';
+      previewContent.appendChild(img);
+      
+      previewOverlay.style.cursor = 'pointer';
+      isVideoMode = false;
+      hideExitArrow();
+    }
+
+    function createVideoPreview(mediaInfo) {
+      if (currentPlayingVideo) {
+        currentPlayingVideo.pause();
+        currentPlayingVideo = null;
+      }
+      
+      const video = document.createElement('video');
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+      video.style.maxWidth = '100%';
+      video.style.maxHeight = '95vh';
+      video.controlsList = 'nodownload';
+      
+      const source = document.createElement('source');
+      source.src = mediaInfo.url;
+      source.type = 'video/mp4';
+      video.appendChild(source);
+      
+      setupVideoControls(video);
+      previewContent.appendChild(video);
+      previewOverlay.style.cursor = 'default';
+      isVideoMode = true;
+      showExitArrow();
+      currentPlayingVideo = video;
+    }
+
+    function setupVideoControls(video) {
+      let hideTimeout = null;
+      
+      // 检测是否为移动设备
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent); 
+
+      video.addEventListener('mousemove', () => {
+        showExitArrow();
+        resetHideTimer();
+      });
+      
+        // 新增：手机端触摸事件
+  if (isMobile) {
+    let lastTap = 0;
+    
+    video.addEventListener('touchstart', (e) => {
+       // 防止触发滑动事件
+        if (e.touches.length === 1) {
+          const currentTime = new Date().getTime();
+          const tapLength = currentTime - lastTap;
+
+          // 单次点击（不是双击）
+          if (tapLength < 500 && tapLength > 0) {
+            showExitArrow();
+            resetHideTimer();
+          }  
+       
+          lastTap = currentTime;
+        }
+      });
+    }  
+
+      function resetHideTimer() {
+        if (hideTimeout) clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(() => {
+          hideExitArrow();
+        }, 3000);
+      }
+      
+      video.addEventListener('play', () => {
+        currentPlayingVideo = video;
+      });
+      
+      resetHideTimer();
+    }
+
+    function handleTouchStart(e) {
+      touchStartX = e.changedTouches[0].screenX;
+    }
+
+    function handleTouchEnd(e) {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }
+
+    function handleSwipe() {
+      const swipeThreshold = 50;
+      const diff = touchStartX - touchEndX;
+      
+      if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+          navigateMedia(1);
+        } else {
+          navigateMedia(-1);
+        }
+      }
+    }
+
+    function navigateMedia(direction) {
+      const newIndex = currentMediaIndex + direction;
+      if (newIndex >= 0 && newIndex < mediaList.length) {
+        currentMediaIndex = newIndex;
+        updatePreviewContent();
+      }
+    }
+
+    function closePreview() {
+      previewOverlay.style.display = 'none';
+      if (currentPlayingVideo) {
+        currentPlayingVideo.pause();
+        currentPlayingVideo = null;
+      }
+      
+      previewOverlay.removeEventListener('touchstart', handleTouchStart, false);
+      previewOverlay.removeEventListener('touchend', handleTouchEnd, false);
+      
+      hideExitArrow();
+      isVideoMode = false;
+    }
+
+    function showExitArrow() {
+      if (!isVideoMode) return;
+      
+      const arrow = document.querySelector('.video-back-arrow');
+      if (arrow) {
+        arrow.style.opacity = '1';
+      }
+    }
+
+    function hideExitArrow() {
+      const arrow = document.querySelector('.video-back-arrow');
+      if (arrow) {
+        arrow.style.opacity = '0';
+      }
+    }
+
+    /* ---------- 🎯 事件处理函数 ---------- */
+    function handleSubmit(e) {
+      e.preventDefault();
+      const msg = input.value.trim();
+      if (msg) {
+        socket.emit('chatmessage', { sender: username, text: msg });
+        input.value = '';
+      }
+    }
+
+    function handleScroll() {
+      if (loading) return;
+      userIsScrolling = true;
+      updateUserScrollState();
+
+      clearTimeout(scrollDebounceTimer);
+      scrollDebounceTimer = setTimeout(async () => {
+        userIsScrolling = false;
+        if (shouldLoadMore()) {
+          await loadMessages(true);
+        }
+      }, 150);
+    }
+
+    function handlePreviewClick(e) {
+      const isImage = mediaList[currentMediaIndex]?.type === 'photo';
+      const isVideo = mediaList[currentMediaIndex]?.type === 'video';
+      
+      if (e.target.closest('.video-back-arrow')) {
+        closePreview();
+        return;
+      }
+
+      if (isImage) {
+        closePreview();
+      } else if (isVideo) {
+        if (!e.target.matches('video') && !e.target.closest('video')) {
+          showExitArrow();
+          setTimeout(() => {
+            hideExitArrow();
+          }, 3000);
+        }
+      }
+    }
+
+    function handleKeyDown(e) {
+      if (e.key === 'Escape' && previewOverlay.style.display === 'flex') {
+        closePreview();
+      }
+    }
+
+    /* ---------- 📍 辅助函数 ---------- */
+    function appendMessage(contentNode, sender, time = '', prepend = false) {
+      const div = document.createElement('div');
+      div.classList.add('message', sender === username ? 'you' : 'other');
+
+      const avatar = document.createElement('div');
+      avatar.classList.add('avatar');
+      avatar.innerText = getAvatarText(sender);
+
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+
+      if (contentNode instanceof HTMLElement) {
+        bubble.appendChild(contentNode);
+      } else {
+        bubble.innerHTML = contentNode;
+      }
+
+      const timeDiv = document.createElement('div');
+      timeDiv.classList.add('timestamp');
+      if (time) {
+        const t = new Date(time);
+        timeDiv.innerText = `${t.getHours()}:${String(t.getMinutes()).padStart(2, '0')}`;
+      }
+      bubble.appendChild(timeDiv);
+
+      if (sender === username) {
+        div.appendChild(bubble);
+        div.appendChild(avatar);
+      } else {
+        div.appendChild(avatar);
+        div.appendChild(bubble);
+      }
+
+      div.dataset.time = time;
+
+      if (prepend) {
+        chatContainer.insertBefore(div, chatContainer.firstChild);
+      } else {
+        chatContainer.appendChild(div);
+      }
+
+      return div;
+    }
+
+    function observeMediaElements(messageEl) {
+      if (!lazyMediaObserver) return;
+      
+      const placeholders = messageEl.querySelectorAll('.media-placeholder');
+      placeholders.forEach(placeholder => {
+        lazyMediaObserver.observe(placeholder);
+      });
+    }
+
+    /* ---------- 📊 滚动管理 ---------- */
+    function isUserAtBottom(threshold = 100) {
+      const { scrollTop, scrollHeight, clientHeight } = chatContainer;
+      return scrollHeight - scrollTop - clientHeight <= threshold;
+    }
+
+    function shouldAutoScrollToBottom() {
+      return autoScrollEnabled && isUserAtBottom();
+    }
+
+    function updateUserScrollState() {
+      userIsViewingHistory = !isUserAtBottom(200);
+      autoScrollEnabled = isUserAtBottom(50);
+    }
+
+    function saveReferenceState() {
+      const referenceElement = chatContainer.querySelector(".message");
+      if (!referenceElement) return null;
+      return {
+        element: referenceElement,
+        initialOffset: referenceElement.getBoundingClientRect().top,
+        initialScrollTop: chatContainer.scrollTop,
+      };
+    }
+
+    function adjustScrollPositionImmediate(referenceState, prevScrollHeight) {
+      const { initialScrollTop } = referenceState;
+      const newScrollHeight = chatContainer.scrollHeight;
+      const contentHeightAdded = newScrollHeight - prevScrollHeight;
+      chatContainer.scrollTop = initialScrollTop + contentHeightAdded;
+    }
+
+    function scrollToBottom(smooth = false) {
+      if (!chatContainer || !autoScrollEnabled) return;
+      chatContainer.scrollTo({
+        top: chatContainer.scrollHeight,
+        behavior: smooth ? "smooth" : "auto",
+      });
+    }
+
+    function shouldLoadMore() {
+      return chatContainer.scrollTop < 50 && !allLoaded && !loading;
+    }
+    
+    function shouldForceLoadMore() {
+      return (
+        chatContainer.scrollHeight <= chatContainer.clientHeight + 100 &&
+        !allLoaded &&
+        !loading
+      );
+    }
+
+    /* ---------- 🔔 状态指示器 ---------- */
+    function showLoadingIndicator() {
+      const existing = document.querySelector(".loading-indicator");
+      if (existing) return;
+      const indicator = document.createElement("div");
+      indicator.className = "loading-indicator";
+      indicator.innerHTML = '<div class="light-spinner"></div><span>加载中...</span>';
+      chatContainer.insertBefore(indicator, chatContainer.firstChild);
+    }
+    
+    function hideLoadingIndicator() {
+      const indicator = document.querySelector(".loading-indicator");
+      if (indicator) indicator.remove();
+    }
+
+    function showNoMoreNotice() {
+      const existingNotice = document.querySelector('.nomore');
+      if (existingNotice) return;
+
+      const notice = document.createElement('div');
+      notice.textContent = '—— 已经没有更早历史信息了 ——';
+      notice.style.textAlign = 'center';
+      notice.style.color = '#666';
+      notice.style.margin = '10px 0';
+      notice.classList.add('nomore');
+      chatContainer.insertBefore(notice, chatContainer.firstChild);
+    }
+
+    /* ---------- 🎯 媒体点击事件 ---------- */
+    document.addEventListener('click', (e) => {
+      const mediaWrapper = e.target.closest('.media-wrapper');
+      if (!mediaWrapper) return;
+      
+      const messageEl = mediaWrapper.closest('.message');
+      if (!messageEl) return;
+      
+      const mediaElements = messageEl.querySelectorAll('.media-wrapper');
+      const mediaArray = [];
+      let clickedIndex = 0;
+      
+      mediaElements.forEach((wrapper, index) => {
+        const img = wrapper.querySelector('img:not(.video-thumb)');
+        const videoThumb = wrapper.querySelector('.video-thumb');
+        
+        if (img) {
+          mediaArray.push({
+            type: 'photo',
+            url: img.src,
+            caption: img.alt
+          });
+        } else if (videoThumb) {
+          mediaArray.push({
+            type: 'video',
+            url: videoThumb.dataset.videoUrl,
+            caption: videoThumb.alt,
+            thumbnail: videoThumb.src
+          });
+        }
+        
+        if (wrapper === mediaWrapper) {
+          clickedIndex = index;
+        }
+      });
+      
+      if (mediaArray.length > 0) {
+        openPreviewMedia(mediaWrapper, mediaArray, clickedIndex);
+      }
+    });
+
+    // 启动应用
+    initApp();
+  </script>
+
+<script src="/heartbeat.js"></script>
+</body>
+</html>

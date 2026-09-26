@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户引流与活跃度统计</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --warning-color: #f72585;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+            font-size: 16px; /* 增加基础字体大小 */
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem; /* 减少内边距以适应移动端 */
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2rem; /* 减少底部边距 */
+        }
+        
+        h1 {
+            font-size: 2rem; /* 减小标题大小 */
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 2px;
+        }
+        
+        .subtitle {
+            color: #6c757d;
+            font-size: 1rem; /* 减小副标题大小 */
+            margin-top: 1rem;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 调整最小宽度 */
+            gap: 1.5rem; /* 减少间距 */
+            margin-top: 1.5rem;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem; /* 减少内边距 */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+        }
+        
+        .stat-card.today::before {
+            background: linear-gradient(90deg, #4361ee, #4895ef);
+        }
+        
+        .stat-card.week::before {
+            background: linear-gradient(90deg, #ff7b00, #ff9e00);
+        }
+        
+        .stat-card.total::before {
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+        }
+        
+        .stat-title {
+            font-size: 1.1rem; /* 调整标题大小 */
+            color: #6c757d;
+            margin-bottom: 1.2rem; /* 减少底部边距 */
+            display: flex;
+            align-items: center;
+        }
+        
+        .stat-title i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem; /* 调整图标大小 */
+        }
+        
+        .stat-value-container {
+            position: relative;
+            height: 70px; /* 减小高度 */
+            overflow: hidden;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem; /* 减小数值大小 */
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+            position: absolute;
+            transition: transform 0.5s ease, opacity 0.3s ease;
+        }
+        
+        .stat-value.old {
+            transform: translateY(-100%);
+            opacity: 0;
+        }
+        
+        .stat-value.new {
+            animation: bounceIn 0.6s ease;
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        @keyframes bounceIn {
+            0% {
+                transform: translateY(100%) scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                transform: translateY(-10%) scale(1.05);
+            }
+            80% {
+                transform: translateY(5%) scale(0.95);
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .stat-change {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem; /* 调整字体大小 */
+            margin-top: 1.2rem;
+            padding-top: 1rem;
+            border-top: 1px dashed #e9ecef;
+        }
+        
+        .up {
+            color: #2ecc71;
+            font-weight: 500;
+        }
+        
+        .down {
+            color: #e74c3c;
+            font-weight: 500;
+        }
+        
+        .refresh-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2.5rem auto 0; /* 减少上边距 */
+            padding: 0.8rem 1.8rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+            width: 90%; /* 移动端按钮宽度 */
+            max-width: 300px; /* 最大宽度限制 */
+        }
+        
+        .refresh-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
+        }
+        
+        .refresh-btn i {
+            margin-right: 8px;
+            transition: transform 0.5s ease;
+        }
+        
+        .refresh-btn.loading i {
+            transform: rotate(360deg);
+        }
+        
+        /* IPv6 显示区域样式 */
+        .ipv6-container {
+            margin-top: 2.5rem; /* 减少上边距 */
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem; /* 减少内边距 */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ipv6-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #4cc9f0, #4895ef);
+        }
+        
+        .ipv6-title {
+            font-size: 1.1rem; /* 调整标题大小 */
+            color: #6c757d;
+            margin-bottom: 1.2rem; /* 减少底部边距 */
+            display: flex;
+            align-items: center;
+        }
+        
+        .ipv6-title i {
+            margin-right: 0.8rem;
+            font-size: 1.2rem; /* 调整图标大小 */
+        }
+        
+        .ipv6-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-direction: column; /* 移动端改为垂直布局 */
+            gap: 1rem; /* 添加间距 */
+        }
+        
+        .ipv6-address {
+            font-family: monospace;
+            font-size: 1rem; /* 调整字体大小 */
+            word-break: break-all;
+            padding: 0.8rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+            flex-grow: 1;
+            width: 100%; /* 移动端宽度100% */
+            text-align: center; /* 居中显示 */
+        }     
+        .copy-btn {
+            padding: 0.8rem 1.5rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            width: 100%; /* 移动端宽度100% */
+        }
+        
+        .copy-btn:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .copy-btn i {
+            margin-right: 8px;
+        }
+        
+        .no-ipv6 {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* 活跃度监控样式 */
+        .activity-dashboard {
+            margin-top: 2.5rem; /* 减少上边距 */
+        }
+        
+        .dashboard-header {
+            background: white;
+            padding: 1.5rem; /* 减少内边距 */
+            border-radius: 12px;
+            margin-bottom: 1.5rem; /* 减少底部边距 */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        
+        .dashboard-header h2 {
+            font-size: 1.8rem; /* 减小标题大小 */
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .dashboard-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* 调整最小宽度 */
+            gap: 1rem; /* 减少间距 */
+            margin-bottom: 1.5rem;
+        }
+        
+        .dashboard-stat-card {
+            background: white;
+            padding: 1.2rem; /* 减少内边距 */
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        
+        .dashboard-stat-number {
+            font-size: 1.8em; /* 减小数字大小 */
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .dashboard-stat-label {
+            color: #666;
+            margin-top: 0.5rem;
+            font-size: 0.9rem; /* 调整标签大小 */
+        }
+        
+        .dashboard-section {
+            background: white;
+            padding: 1.5rem; /* 减少内边距 */
+            border-radius: 12px;
+            margin-bottom: 1.5rem; /* 减少底部边距 */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            overflow-x: auto; /* 添加水平滚动 */
+        }
+        
+        .dashboard-section h3 {
+            font-size: 1.3rem; /* 减小标题大小 */
+            color: #333;
+            margin-bottom: 1.2rem; /* 减少底部边距 */
+            display: flex;
+            align-items: center;
+        }
+        
+        .dashboard-section h3 i {
+            margin-right: 0.8rem;
+            color: var(--primary-color);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px; /* 设置最小宽度确保表格内容可读 */
+        }
+        
+        th, td {
+            padding: 10px; /* 减少内边距 */
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem; /* 调整表格字体大小 */
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .online-badge {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #28a745;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .user-type {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75em; /* 调整用户类型标签大小 */
+        }
+        
+        .registered {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .guest {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px; /* 减少内边距 */
+            color: #666;
+        }
+        
+        .time-duration {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.85rem; /* 调整时间显示大小 */
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 250px; /* 减小图表高度 */
+            margin-top: 1rem;
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem; /* 进一步减少内边距 */
+            }
+            
+            h1 {
+                font-size: 1.8rem; /* 进一步减小标题大小 */
+            }
+            
+            .subtitle {
+                font-size: 0.9rem; /* 进一步减小副标题大小 */
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+                gap: 1rem; /* 进一步减少间距 */
+            }
+            
+            .stat-card {
+                padding: 1.2rem; /* 进一步减少内边距 */
+            }
+            
+            .stat-value {
+                font-size: 2.2rem; /* 进一步减小数值大小 */
+            }
+            
+            .stat-value-container {
+                height: 60px; /* 进一步减小高度 */
+            }
+            
+            .dashboard-stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem; /* 进一步减少间距 */
+            }
+            
+            .dashboard-stat-card {
+                padding: 1rem; /* 进一步减少内边距 */
+            }
+            
+            .dashboard-stat-number {
+                font-size: 1.6em; /* 进一步减小数字大小 */
+            }
+            
+            .dashboard-section {
+                padding: 1.2rem; /* 进一步减少内边距 */
+            }
+            
+            .dashboard-section h3 {
+                font-size: 1.2rem; /* 进一步减小标题大小 */
+            }
+            
+            .chart-container {
+                height: 200px; /* 进一步减小图表高度 */
+            }
+            
+            .ipv6-container {
+                padding: 1.2rem; /* 进一步减少内边距 */
+            }
+            
+            .ipv6-title {
+                font-size: 1rem; /* 进一步调整标题大小 */
+            }
+            
+            .ipv6-address {
+                font-size: 0.9rem; /* 进一步调整字体大小 */
+            }
+            
+            th, td {
+                padding: 8px; /* 进一步减少内边距 */
+                font-size: 0.85rem; /* 进一步调整表格字体大小 */
+            }
+        }
+
+        /* 小屏幕手机优化 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0.8rem; /* 极小的内边距 */
+            }
+            
+            h1 {
+                font-size: 1.6rem; /* 极小的标题 */
+            }
+            
+            .stat-value {
+                font-size: 2rem; /* 极小的数值 */
+            }
+            
+            .dashboard-stats-grid {
+                grid-template-columns: 1fr; /* 单列布局 */
+            }
+            
+            .dashboard-stat-number {
+                font-size: 1.5em; /* 极小的数字 */
+            }
+            
+            .chart-container {
+                height: 180px; /* 极小的图表高度 */
+            }
+            
+            table {
+                min-width: 500px; /* 调整最小宽度 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>用户引流与活跃度统计</h1>
+            <p class="subtitle">实时监控用户增长与活跃情况 · 数据每分钟自动更新</p>
+        </header>
+        
+        <!-- 用户引流统计部分 -->
+        <div class="stats-container">
+            <div class="stat-card today">
+                <div class="stat-title">
+                    <i class="fas fa-calendar-day"></i>
+                    今日人数
+                </div>
+                <div class="stat-value-container">
+                    <div class="stat-value new" id="today-count">0</div>
+                </div>
+                <div class="stat-change">
+                    <span id="today-change">加载中...</span>
+                </div>
+            </div>
+            
+            <div class="stat-card week">
+                <div class="stat-title">
+                    <i class="fas fa-calendar-week"></i>
+                    本周人数
+                </div>
+                <div class="stat-value-container">
+                    <div class="stat-value new" id="week-count">0</div>
+                </div>
+                <div class="stat-change">
+                    <span id="week-change">加载中...</span>
+                </div>
+            </div>
+            
+            <div class="stat-card total">
+                <div class="stat-title">
+                    <i class="fas fa-users"></i>
+                    总人数
+                </div>
+                <div class="stat-value-container">
+                    <div class="stat-value new" id="total-count">0</div>
+                </div>
+                <div class="stat-change">
+                    <span id="total-change">加载中...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 域名显示区域 -->
+        <div class="ipv6-container">
+            <div class="ipv6-title">
+                <i class="fas fa-network-wired"></i>
+                今日绑定的子域名地址
+            </div>
+            <div class="ipv6-content">
+                <div class="ipv6-address" id="ipv6-address">
+                    <span class="no-ipv6">正在获取域名地址...</span>
+                </div>
+                <button class="copy-btn" id="copy-ipv6-btn" disabled>
+                    <i class="far fa-copy"></i> 复制
+                </button>
+            </div>
+        </div>
+
+        <!-- 用户活跃度监控部分 -->
+        <div class="activity-dashboard">
+            <div class="dashboard-header">
+                <h2>📊 用户活跃度监控</h2>
+                <p class="subtitle">实时追踪用户在线状态和页面访问时间</p>
+            </div>
+
+            <div class="dashboard-stats-grid" id="activityStatsGrid">
+                <div class="loading">加载中...</div>
+            </div>
+
+            <div class="dashboard-section">
+                <h3><i class="fas fa-chart-line"></i> 活跃度趋势（最近7天）</h3>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h3><i class="fas fa-users"></i> 用户页面访问时间统计（今日）</h3>
+                <div id="userPageStats">
+                    <div class="loading">加载用户统计...</div>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h3><i class="fas fa-circle"></i> 当前在线用户（最近5分钟）</h3>
+                <div id="onlineUsers">
+                    <div class="loading">加载在线用户列表...</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="refresh-btn" id="refresh-btn">
+            <i class="fas fa-sync-alt"></i> 刷新所有数据
+        </button>
+    </div>
+
+    <script>
+        // 用户引流统计功能
+        let currentValues = {
+            today: 0,
+            week: 0,
+            total: 0
+        };
+
+        // 活跃度监控功能
+        let trendChart;
+
+        // 格式化时间显示
+        function formatDuration(seconds) {
+            if (!seconds) return '0秒';
+            if (seconds < 60) return `${seconds}秒`;
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}分钟`;
+            return `${Math.floor(seconds / 3600)}小时${Math.floor((seconds % 3600) / 60)}分钟`;
+        }
+
+        function formatTimeAgo(timestamp) {
+            const now = new Date();
+            const time = new Date(timestamp);
+            const diff = Math.floor((now - time) / 1000);
+            
+            if (diff < 60) return '刚刚';
+            if (diff < 3600) return `${Math.floor(diff / 60)}分钟前`;
+            if (diff < 86400) return `${Math.floor(diff / 3600)}小时前`;
+            return time.toLocaleDateString() + ' ' + time.toLocaleTimeString();
+        }
+
+        // 用户引流统计功能
+        async function fetchData() {
+            const btn = document.getElementById('refresh-btn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            ['today', 'week', 'total'].forEach(k => {
+                document.getElementById(`${k}-change`).textContent = '数据更新中...';
+            });
+
+            try {
+                const res = await fetch('/api/stats/users');
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+
+                updateNumberWithAnimation('today-count', currentValues.today, data.today.count);
+                updateNumberWithAnimation('week-count', currentValues.week, data.week.count);
+                updateNumberWithAnimation('total-count', currentValues.total, data.total.count);
+
+                currentValues = {
+                    today: data.today.count,
+                    week: data.week.count,
+                    total: data.total.count
+                };
+
+                updateChangeIndicator('today-change', data.today.change);
+                updateChangeIndicator('week-change', data.week.change);
+                updateChangeIndicator('total-change', 0);
+
+            } catch (err) {
+                console.error('获取用户统计失败:', err);
+            } finally {
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        function updateNumberWithAnimation(elementId, oldValue, newValue) {
+            const container = document.getElementById(elementId).parentElement;
+            const oldElement = document.getElementById(elementId);
+            const newElement = oldElement.cloneNode(true);
+
+            oldElement.classList.remove('new');
+            oldElement.classList.add('old');
+            oldElement.textContent = oldValue;
+
+            newElement.classList.remove('old');
+            newElement.classList.add('new');
+            newElement.textContent = newValue;
+
+            container.appendChild(newElement);
+            void newElement.offsetWidth;
+
+            setTimeout(() => oldElement.remove(), 500);
+        }
+
+        function updateChangeIndicator(elementId, change) {
+            const element = document.getElementById(elementId);
+            const changeValue = parseFloat(change);
+
+            if (changeValue > 0) {
+                element.innerHTML = `<span class="up"><i class="fas fa-arrow-up"></i> ${Math.abs(changeValue)}% 较前期</span>`;
+            } else if (changeValue < 0) {
+                element.innerHTML = `<span class="down"><i class="fas fa-arrow-down"></i> ${Math.abs(changeValue)}% 较前期</span>`;
+            } else {
+                element.innerHTML = `<span>${changeValue}% 较前期</span>`;
+            }
+        }
+
+        // 活跃度监控功能
+        async function loadActivityData() {
+            try {
+                const [statsRes, onlineRes, trendRes, pageStatsRes] = await Promise.all([
+                    fetch('/api/activity/today-stats'),
+                    fetch('/api/activity/online-users'),
+                    fetch('/api/activity/weekly-trend'),
+                    fetch('/api/activity/user-page-stats')
+                ]);
+
+                const stats = await statsRes.json();
+                const online = await onlineRes.json();
+                const trend = await trendRes.json();
+                const pageStats = await pageStatsRes.json();
+
+                if (stats.success) renderActivityStats(stats.data);
+                if (online.success) renderOnlineUsers(online.data);
+                if (trend.success) renderTrendChart(trend.data);
+                if (pageStats.success) renderUserPageStats(pageStats.data);
+            } catch (err) {
+                console.error('加载活跃度数据失败:', err);
+            }
+        }
+
+        function renderActivityStats(data) {
+            document.getElementById('activityStatsGrid').innerHTML = `
+                <div class="dashboard-stat-card">
+                    <div class="dashboard-stat-number">${data.onlineNow}</div>
+                    <div class="dashboard-stat-label">当前在线</div>
+                </div>
+                <div class="dashboard-stat-card">
+                    <div class="dashboard-stat-number">${data.totalSessions}</div>
+                    <div class="dashboard-stat-label">今日会话</div>
+                </div>
+                <div class="dashboard-stat-card">
+                    <div class="dashboard-stat-number">${data.uniqueUsers}</div>
+                    <div class="dashboard-stat-label">注册用户访问</div>
+                </div>
+                <div class="dashboard-stat-card">
+                    <div class="dashboard-stat-number">${data.uniqueVisitors}</div>
+                    <div class="dashboard-stat-label">游客访问</div>
+                </div>
+            `;
+        }
+
+        function renderUserPageStats(users) {
+            if (users.length === 0) {
+                document.getElementById('userPageStats').innerHTML = '<p>暂无用户数据</p>';
+                return;
+            }
+
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>用户类型</th>
+                            <th>最后活跃</th>
+                            <th>首页时间</th>
+                            <th>聊天室时间</th>
+                            <th>作品页时间</th>
+                            <th>上线时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td>
+                                    <span class="online-badge"></span>
+                                    ${user.username}
+                                    ${user.userType === 'registered' ? '<br><small>注册用户</small>' : '<br><small>游客</small>'}
+                                </td>
+                                <td>
+                                    <span class="user-type ${user.userType === 'registered' ? 'registered' : 'guest'}">
+                                        ${user.userType === 'registered' ? '注册用户' : '游客'}
+                                    </span>
+                                </td>
+                                <td>${formatTimeAgo(user.lastSeenAt)}</td>
+                                <td><span class="time-duration">${formatDuration(user.pageStats?.home || 0)}</span></td>
+                                <td><span class="time-duration">${formatDuration(user.pageStats?.chat || 0)}</span></td>
+                                <td><span class="time-duration">${formatDuration(user.pageStats?.works || 0)}</span></td>
+                                <td>${new Date(user.loginAt).toLocaleTimeString()}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('userPageStats').innerHTML = html;
+        }
+
+        function renderOnlineUsers(users) {
+            if (users.length === 0) {
+                document.getElementById('onlineUsers').innerHTML = '<p>暂无在线用户</p>';
+                return;
+            }
+
+            const html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>用户</th>
+                            <th>类型</th>
+                            <th>最后活跃</th>
+                            <th>当前页面</th>
+                            <th>在线时长</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${users.map(user => {
+                            const onlineDuration = Math.round((new Date() - new Date(user.loginAt)) / 1000);
+                            return `
+                                <tr>
+                                    <td>
+                                        <span class="online-badge"></span>
+                                        ${user.userId ? (user.userId.username || '用户') : '游客'}
+                                        ${user.userId ? `<br><small>${user.userId.email || ''}</small>` : ''}
+                                    </td>
+                                    <td>
+                                        <span class="user-type ${user.userId ? 'registered' : 'guest'}">
+                                            ${user.userId ? '注册用户' : '游客'}
+                                        </span>
+                                    </td>
+                                    <td>${formatTimeAgo(user.lastSeenAt)}</td>
+                                    <td>${user.pageStats?.lastPath || '/'}</td>
+                                    <td><span class="time-duration">${formatDuration(onlineDuration)}</span></td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('onlineUsers').innerHTML = html;
+        }
+
+        function renderTrendChart(data) {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            
+            if (trendChart) {
+                trendChart.destroy();
+            }
+
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.date),
+                    datasets: [
+                        {
+                            label: '日活跃会话',
+                            data: data.map(d => d.dailyActive),
+                            borderColor: '#4361ee',
+                            backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: '独立用户',
+                            data: data.map(d => d.uniqueUsers),
+                            borderColor: '#4cc9f0',
+                            backgroundColor: 'rgba(76, 201, 240, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0,0,0,0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 域名功能
+        async function fetchDomain() {
+            try {
+                const response = await fetch('/data/current-domain.txt?t=' + Date.now());
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const domain = (await response.text()).trim();
+                const domainElement = document.getElementById('ipv6-address');
+                const copyBtn = document.getElementById('copy-ipv6-btn');
+                
+                if (domain) {
+                    const fullUrl = domain.startsWith('http') ? domain : `https://${domain}`;
+                    domainElement.innerHTML = `<a href="${fullUrl}" target="_blank">${domain}</a>`;
+                    copyBtn.disabled = false;
+                } else {
+                    domainElement.innerHTML = '<span class="no-ipv6">暂无可用域名</span>';
+                    copyBtn.disabled = true;
+                }
+            } catch (err) {
+                console.error('获取域名失败:', err);
+                document.getElementById('ipv6-address').innerHTML = '<span class="no-ipv6">无法获取域名</span>';
+                document.getElementById('copy-ipv6-btn').disabled = true;
+            }
+        }
+
+        function setupCopyButton() {
+            const copyBtn = document.getElementById('copy-ipv6-btn');
+            copyBtn.addEventListener('click', () => {
+                const domain = document.getElementById('ipv6-address').textContent;
+                
+                navigator.clipboard.writeText(domain).then(() => {
+                    const originalHtml = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '<i class="fas fa-check"></i> 已复制';
+                    copyBtn.style.backgroundColor = '#4cc9f0';
+                    
+                    setTimeout(() => {
+                        copyBtn.innerHTML = originalHtml;
+                        copyBtn.style.backgroundColor = '';
+                    }, 3000);
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                    alert('复制失败，请手动选择并复制');
+                });
+            });
+        }
+
+// 配置常量
+const REFRESH_INTERVALS = {
+    DATA: 60 * 60 * 1000,      // 1小时
+    DOMAIN: 60 * 60 * 1000,    // 1小时
+    ACTIVITY: 60 * 60 * 1000   // 1小时
+};
+
+// 初始化
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // 初始化数据
+        const initTasks = [
+            fetchData,
+            fetchDomain,
+            loadActivityData
+        ];
+        
+        // 并行执行初始化任务
+        const results = await Promise.allSettled(initTasks.map(task => task()));
+        
+        // 检查初始化结果
+        results.forEach((result, index) => {
+            if (result.status === 'rejected') {
+                console.error(`初始化任务 ${index} 失败:`, result.reason);
+            }
+        });
+        
+        setupCopyButton();
+        
+        // 设置定时刷新
+        const intervals = [
+            { fn: fetchData, interval: REFRESH_INTERVALS.DATA },
+            { fn: fetchDomain, interval: REFRESH_INTERVALS.DOMAIN },
+            { fn: loadActivityData, interval: REFRESH_INTERVALS.ACTIVITY }
+        ];
+        
+        intervals.forEach(({ fn, interval }) => setInterval(fn, interval));
+        
+        console.log('应用初始化完成');
+    } catch (error) {
+        console.error('应用初始化失败:', error);
+    }
+});
+
+        // 刷新按钮
+        document.getElementById('refresh-btn').addEventListener('click', () => {
+            fetchData();
+            fetchDomain();
+            loadActivityData();
+        });
+    </script>
+</body>
+</html>

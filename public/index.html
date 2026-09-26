@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>资源联盟</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            padding-bottom: 70px; /* 为底部导航栏留出空间 */
+            background-color: #f8f8f8;
+        }
+        
+        .section {
+            padding: 20px 15px;
+            
+            background-color: white;
+            
+        }
+        
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .section-title:after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(to right, #000000, #000000);
+            border-radius: 3px;
+        }
+        
+/* 每日更新区域样式 */
+.daily-update {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    width: 100%;
+    padding: 0; /* 移除内边距 */
+    margin: 0; /* 移除外边距 */
+}
+
+.media-block {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    aspect-ratio: 1/1.35;
+    margin: 0; /* 确保无外边距 */
+    padding: 0; /* 确保无内边距 */
+    
+}
+
+.media-content {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1/1;
+    position: relative;
+    overflow: hidden;
+    background-color: #000;
+    cursor: pointer;
+    margin: 0; /* 确保无外边距 */
+    padding: 0; /* 确保无内边距 */
+    
+}
+
+.media-content img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block; /* 防止图片底部留白 */
+}
+
+.media-title {
+    padding: 8px 10px;
+    font-size: 14px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background-color: #fff;
+    color: #333;
+    border-top: 1px solid #f0f0f0;
+    margin-top: auto;
+}
+
+/* ==============================
+   Plyr 播放器容器样式
+   ============================== */
+.plyr-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ==============================
+   视频旋转包装器
+   ============================== */
+.rotate-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transform-origin: center center;
+    transition: transform 0.32s ease;
+}
+
+.rotate-wrapper > video {
+    max-width: 100vw;   /* 限制最大宽度为视口宽度 */
+    max-height: 100vh;  /* 限制最大高度为视口高度 */
+    object-fit: contain;
+    will-change: transform;
+    border-radius: 0;
+}
+
+
+/* ==============================
+   Plyr 自带视频样式覆盖
+   ============================== */
+.plyr-video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain !important;
+    border-radius: 0;
+    background-color: #000;
+}
+#plyr-container:fullscreen #plyr-video,
+.plyr--fullscreen #plyr-video {
+  object-fit: contain !important;
+  background-color: #000;
+}
+
+/* 关闭按钮样式 */
+.plyr__control.close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+    font-size: 18px;
+    color: white;
+}
+/* hover 效果 */
+.plyr__control.close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    font-size: 20px;      /* 调整文字大小，例如 20px */
+    font-weight: bold:;    /* 设置为粗体，可选值：normal, bold, 100–900 */
+}
+
+/* 加载动画样式 */
+.loading-overlay {
+  position: fixed;         /* ✅ 固定在视口，而不是相对父容器 */
+  inset: 0;                /* 等价于 top:0; right:0; bottom:0; left:0 */
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: rgba(0, 0, 0, 0.85);
+  transition: opacity 0.5s ease;
+  z-index: 1000;
+}
+
+#loading-image {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  transition: opacity 0.5s ease;
+}
+
+#skip-loading {
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 14px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.highlight {
+  color: #ffb6c1;
+  font-weight: bold;
+}
+
+
+
+
+
+
+
+
+
+/* ================= 每日吃瓜区域 ================= */
+.daily-gossip {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+.gossip-group {
+  border: 1px solid #eee;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #fafafa;
+  overflow: hidden;
+}
+
+/* 大方块标题 */
+.gossip-group h3 {
+  font-family: "KaiTi", "STKaiti", serif;
+  font-size: 12px;
+  text-align: center;
+  margin-bottom: 3px;
+}
+
+.stacked-media {
+  position: relative;
+  height: 200px;
+  width: 100%;
+  margin: 20px 0;
+}
+
+.stacked-item {
+  position: absolute;
+  width: 90%;
+  height: 90%;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  background: #f0f0f0;
+}
+
+.stacked-item:hover {
+  transform: scale(1.05);
+  z-index: 20 !important;
+  opacity: 1 !important;
+}
+
+.stacked-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video-play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* ================= 全屏展示 ================= */
+
+/* ✅ 最外层：全屏容器 */
+.media-fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  display: flex;                 /* 居中中间层 */
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+/* ✅ 中间层：承载媒体，继续居中 */
+.media-content {
+  display: flex;                 /* 居中媒体 */
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  max-height: 100%;
+  transition: opacity 0.3s ease;
+}
+.media-content.changing {
+  opacity: 0.5;
+}
+
+/* ✅ 内层：媒体本身 */
+.fullscreen-media {
+  max-width: 100vw;
+  max-height: 100vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;           /* 保持比例完整显示 */
+  background: #000;
+  display: block;
+}
+
+/* 视频单独处理（可选：加深背景） */
+.fullscreen-media.video {
+  background: rgba(0, 0, 0, 0.95);
+}
+
+/* 横屏优化：稍微收缩，避免横屏特别宽时顶边 */
+@media (orientation: landscape) {
+  .fullscreen-media {
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+}
+
+/* ================= 堆叠层级 ================= */
+.stacked-item:nth-child(1) { top: 0; left: 0; z-index: 10; }
+.stacked-item:nth-child(2) { top: 5%; left: 5%; z-index: 9; opacity: 0.9; }
+.stacked-item:nth-child(3) { top: 10%; left: 10%; z-index: 8; opacity: 0.8; }
+.stacked-item:nth-child(4) { top: 15%; left: 15%; z-index: 7; opacity: 0.7; }
+.stacked-item:nth-child(5) { top: 20%; left: 20%; z-index: 6; opacity: 0.6; }
+.stacked-item:nth-child(6) { top: 25%; left: 25%; z-index: 5; opacity: 0.5; }
+.stacked-item:nth-child(7) { top: 30%; left: 30%; z-index: 4; opacity: 0.4; }
+.stacked-item:nth-child(8) { top: 35%; left: 35%; z-index: 3; opacity: 0.3; }
+.stacked-item:nth-child(9) { top: 40%; left: 40%; z-index: 2; opacity: 0.2; }
+.stacked-item:nth-child(10) { top: 45%; left: 45%; z-index: 1; opacity: 0.1; }
+
+
+
+
+
+        /* 底部导航栏样式 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: #fff;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        
+        .nav-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .nav-button.active, .nav-button:hover {
+            color: #7954df;
+        }
+        
+        .nav-button i {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+/* ============== 会员侧边面板 ============== */
+.vip-panel {
+    position: fixed;
+    top: 0;
+    right: -50%; /* 初始隐藏在右侧 */
+    width: 50%;  /* 增加宽度 */
+    height: 100%;
+    background: #FFF9F0; /* 奶白色背景 */
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    z-index: 1001; /* 最高优先级，确保在最上层 */
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    opacity: 0;
+}
+
+/* 激活状态 */
+.vip-panel.active {
+    right: 0;
+    opacity: 1;
+}
+
+/* ============== 公告区域 ============== */
+.vip-announcement {
+    padding: 20px;
+    background: white;
+    margin: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid #FFE8C8; /* 浅橙色边框 */
+}
+
+.vip-announcement h3 {
+    color: #FF7B54; /* 主题橙色 */
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.vip-announcement p {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* ============== 按钮区域 ============== */
+.vip-buttons {
+    padding: 25px; /* 增加内边距 */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* ============== 按钮样式 ============== */
+.vip-btn {
+    position: relative;
+    padding: 18px 25px;
+    border: none;
+    border-radius: 10px;
+    text-align: left;
+    font-size: 16px;
+    color: white; /* 统一文字为白色 */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    overflow: hidden;
+    font-weight: 500;
+}
+
+/* 悠悠 - 淡绿色渐变 */
+.vip-btn:nth-child(1) {
+    background: linear-gradient(135deg, #6DD5A7, #4DC9A8);
+}
+
+/* 游戏 - 淡蓝色渐变 */
+.vip-btn:nth-child(2) {
+    background: linear-gradient(135deg, #64B5F6, #42A5F5);
+}
+
+/* 会员 - 橙色渐变 (保持原有) */
+.vip-btn.premium {
+    background: linear-gradient(135deg, #FF9F66, #FF7B54);
+}
+
+/* 箭头样式调整 */
+.vip-btn .arrow {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 12px solid rgba(255,255,255,0.9); /* 白色半透明箭头 */
+    transition: all 0.3s;
+}
+
+/* 悬停效果 */
+.vip-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+.vip-btn:hover .arrow {
+    right: 10px;
+    border-left-color: white;
+}
+
+/* 悠悠悬停加深 */
+.vip-btn:nth-child(1):hover {
+    background: linear-gradient(135deg, #5EC89F, #3DBB96);
+}
+
+/* 游戏悬停加深 */
+.vip-btn:nth-child(2):hover {
+    background: linear-gradient(135deg, #54A8E6, #3195E0);
+}
+
+/* 会员悬停加深 */
+.vip-btn.premium:hover {
+    background: linear-gradient(135deg, #FF8F50, #FF6B42);
+}
+
+/* 点击效果 */
+.vip-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* ============== 遮罩层 ============== */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.3);
+    z-index: 1000; /* 低于面板但高于其他内容 */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ============== 购物车图标动画 ============== */
+.vip-button.active i {
+    animation: bounce 0.5s;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+     /* 加载动画组件动画 */
+     .loader-wrapper {
+      display: flex;
+     justify-content: center;
+     align-items: center;
+     padding: 20px 0;
+     }
+
+
+/* 放大容器样式 */
+#preview-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  touch-action: pan-y;
+  overflow: hidden;
+}
+
+#preview-overlay.hidden {
+  display: none;
+}
+
+#preview-content {
+  max-width: 100%;
+  max-height: 100%;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#preview-content img,
+#preview-content video {
+  max-width: 100vw;
+  max-height: 100vh;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+
+/*---- 弹窗CSS ----*/
+
+        #permanentNotice {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 9999;
+            text-align: center;
+            width: 360px;
+            max-width: 90vw;
+            animation: fadeIn 0.4s ease-out;
+            border: 1px solid rgba(255, 105, 180, 0.2);
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        
+        /* 弹窗标题 */
+        .notice-header {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .notice-header h2 {
+            color: #FF8C00; /* 亮橙色 */
+            font-size: 22px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+            padding: 0;
+        }
+        
+        .notice-header p {
+            color: #000; /* 黑色 */
+            font-size: 14px;
+            line-height: 1.5;
+            font-weight: bold; /* 加粗 */
+            font-family: 'Comic Sans MS', '楷体', cursive; /* 可爱字体 */
+        }
+        
+        /* 链接样式 */
+        .website-link {
+            display: inline-block;
+            margin: 20px 0;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .website-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 105, 180, 0.4);
+        }
+        
+        .website-link:active {
+            transform: translateY(0);
+        }
+        
+        /* 按钮容器 */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            color: white;
+            box-shadow: 0 4px 10px rgba(255, 105, 180, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ff1493, #ff69b4);
+            box-shadow: 0 6px 15px rgba(255, 105, 180, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .btn-success:hover {
+            background: linear-gradient(135deg, #45a049, #4CAF50);
+            box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+        }
+        
+        /* 提示文本 */
+        .notice-footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+            line-height: 1.4;
+        }
+
+
+    </style>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+
+</head>
+<body>
+
+
+<!-- 每日更新区域 -->
+<div class="section">
+  <div class="section-title">每日🌞更新</div>
+  <div class="daily-update" id="daily-update">
+    <!-- JS 动态插入 media-block -->
+  </div>
+</div>
+
+<!-- 全屏播放器容器日更 -->
+<div class="plyr-container" id="plyr-container" style="display:none;">
+  <span class="plyr-close" id="plyr-close">&times;</span>
+  <div class="rotate-wrapper">   <!-- 新增这一层 -->
+    <video id="plyr-video" class="plyr-video" playsinline controls></video>
+  </div>
+</div>
+
+<!-- 加载遮罩层日更 -->
+<div id="loading-overlay" class="loading-overlay">
+  <img id="loading-image" src="" alt="loading">
+  <button id="skip-loading">
+    视频已加载 <span id="skip-percent">0%</span> ，是否立即 
+    <span class="highlight">跳转播放</span>
+  </button>
+</div>
+
+    
+    
+<!-- 每日吃瓜区域 -->
+<div class="section">
+    <div class="section-title">每日🍉吃瓜</div>
+    <div class="daily-gossip" id="daily-gossip">
+        <!-- JS 动态插入 media-block -->
+    </div>
+</div>
+    
+    <!-- 每日优选区域 -->
+<div class="section">
+    <div class="section-title">每日✨优选</div>
+    <div class="daily-premium">
+        <!-- JS会自动填充内容 -->
+    </div>
+</div>
+    
+
+
+<!-- 底部导航栏 -->
+<div class="bottom-nav">
+    <a href="index.html" class="nav-button active">
+        <i class="fas fa-home"></i>
+        <span>日更</span>
+    </a>
+    
+<a href="#" onclick="goToChat()" class="nav-button">
+  <i class="fas fa-comments"></i>
+  <span>聊天室</span>
+</a>
+
+
+    <a href="#vip" class="nav-button vip-button">
+        <i class="fas fa-shopping-cart"></i> <!-- 购物车图标替换皇冠 -->
+        <span>更多</span>
+    </a>
+</div>
+
+<!-- 会员侧边面板 -->
+<div class="vip-panel">
+    <div class="vip-announcement">
+        <h3>用爱发电 求投喂</h3>
+
+        <P>优质资源不断更新🎁</P>
+      
+    </div>
+
+ 
+    <div class="vip-buttons" >
+
+        <button class="vip-btn" data-href="/yy.html">
+            🧘稀缺资源
+            <span class="arrow"></span>
+        </button>
+
+      <button class="vip-btn" data-href="/go-shop">
+          🎮游戏
+       <span class="arrow"></span>
+      </button>
+
+        <button class="vip-btn premium"  data-href="/vip.html">   
+            ⭐会员
+            <span class="arrow"></span>
+        </button>
+       
+    </div>
+</div>
+
+
+ <!-- 放大容器 -->
+  <div id="preview-overlay" class="hidden">
+  <div id="preview-content"></div>
+  </div>
+
+
+    <!-- 永久地址弹窗 -->
+    <div id="permanentNotice">
+        <div class="notice-header">
+            <h2>👑 永久访问地址</h2>
+            <p>截图保留或复制，记住永久地址才不会迷路哦</p>
+        </div>
+        
+        <a href="https://zylm.my" target="_blank" class="website-link">
+            zylm.my
+        </a>
+        
+        <div class="button-group">
+            <button class="btn btn-primary" id="copyButton">
+                <span>📋</span> 复制
+            </button>
+            <button class="btn btn-secondary" onclick="closeNotice()">
+                关闭
+            </button>
+        </div>
+        
+        <div class="notice-footer">
+            <p>提示在 24 小时内不再出现</p>
+        </div>
+    </div>
+
+
+<!--   JS   --->
+    <script>
+
+
+//聊天室 跳转函数
+  async function goToChat() {
+    try {
+      const res = await fetch('/api/me', { credentials: 'include' });
+      if (res.ok) {
+        window.location.href = '/chat.html';
+      } else {
+        window.location.href = '/login.html';
+      }
+    } catch (err) {
+      window.location.href = '/login.html';
+    }
+  }
+
+// ============== 导航函数 ==============
+function navigate(page) {
+    // 在实际应用中，这里应该是页面跳转逻辑
+    // 例如：window.location.href = page;
+    console.log("跳转到: " + page);
+    alert("即将跳转到: " + page);
+    
+    // 更新活动按钮状态
+    document.querySelectorAll('.nav-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+}
+
+// ============== 会员面板控制 ==============
+const vipButton = document.querySelector('.vip-button');
+const vipPanel = document.querySelector('.vip-panel');
+const overlay = document.createElement('div');
+overlay.className = 'overlay';
+document.body.appendChild(overlay);
+
+// 点击会员按钮
+vipButton.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation(); // 阻止事件冒泡
+    
+    // 显示面板和遮罩
+    vipPanel.classList.add('active');
+    overlay.classList.add('active');
+    
+    // 更新导航按钮状态
+    document.querySelectorAll('.nav-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    this.classList.add('active');
+    
+    // 购物车图标动画
+    this.querySelector('i').classList.add('active');
+    setTimeout(() => {
+        this.querySelector('i').classList.remove('active');
+    }, 500);
+    
+    // 锁定页面滚动
+    document.body.style.overflow = 'hidden';
+});
+
+// 关闭面板函数
+function closeVipPanel() {
+    vipPanel.classList.remove('active');
+    overlay.classList.remove('active');
+    vipButton.classList.remove('active');
+    document.body.style.overflow = ''; // 恢复滚动
+}
+
+// 点击遮罩层关闭
+overlay.addEventListener('click', closeVipPanel);
+
+// ESC键关闭面板
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && vipPanel.classList.contains('active')) {
+        closeVipPanel();
+    }
+});
+
+// ============== 会员按钮点击效果 ==============
+document.querySelectorAll('.vip-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation(); // 阻止事件冒泡
+        
+        // 按钮点击动画
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+            this.style.transform = '';
+        }, 200);
+        
+        // 这里可以添加实际的会员购买逻辑
+        console.log('点击了:', this.textContent.trim());
+        
+        // 示例：点击后3秒自动关闭面板
+        // setTimeout(closeVipPanel, 3000);
+    });
+});
+
+        /* -------- 永久地址弹窗JS ---------*/
+        const NOTICE_KEY = 'permanentNoticeShownTime';
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000; // 24小时（毫秒）
+        let copyButton = document.getElementById('copyButton');
+
+        function showNotice() {
+            document.getElementById('permanentNotice').style.display = 'block';
+            // 重置复制按钮状态
+            resetCopyButton();
+        }
+
+        function closeNotice() {
+            document.getElementById('permanentNotice').style.display = 'none';
+            // 记录当前时间
+            localStorage.setItem(NOTICE_KEY, Date.now().toString());
+        }
+
+        function copyText() {
+            navigator.clipboard.writeText('https://zylm.my').then(() => {
+                // 改变按钮状态
+                copyButton.innerHTML = '复制成功';
+                copyButton.classList.remove('btn-primary');
+                copyButton.classList.add('btn-success');
+                
+                // 3秒后恢复原始状态
+                setTimeout(() => {
+                    resetCopyButton();
+                }, 3000);
+            }).catch(err => {
+                console.error('复制失败:', err);
+                // 如果复制失败，也显示成功状态（简化处理）
+                copyButton.innerHTML = '复制成功';
+                copyButton.classList.remove('btn-primary');
+                copyButton.classList.add('btn-success');
+                
+                // 3秒后恢复原始状态
+                setTimeout(() => {
+                    resetCopyButton();
+                }, 3000);
+            });
+        }
+
+        function resetCopyButton() {
+            copyButton.innerHTML = '<span>📋</span> 复制';
+            copyButton.classList.remove('btn-success');
+            copyButton.classList.add('btn-primary');
+        }
+
+        window.addEventListener('load', function() {
+            const lastShown = localStorage.getItem(NOTICE_KEY);
+            const now = Date.now();
+
+            // 如果从未提示过，或距离上次提示超过24小时 → 显示提示框
+            if (!lastShown || now - parseInt(lastShown, 10) > ONE_DAY_MS) {
+                // 延迟1秒显示，让页面先加载完成
+                setTimeout(showNotice, 1000);
+            }
+            
+            // 添加复制按钮事件监听
+            copyButton.addEventListener('click', copyText);
+            
+            // 添加手动显示弹窗按钮
+            document.getElementById('showNoticeBtn').addEventListener('click', showNotice);
+        });
+
+
+
+
+// 通用跳转逻辑（带登录检查）
+document.querySelectorAll('.vip-btn').forEach(btn => {
+  btn.addEventListener('click', async function (e) {
+    e.preventDefault();
+    const url = this.dataset.href;
+
+    try {
+      const res = await fetch('/api/me', { credentials: 'include' });
+      if (res.ok) {
+        // ✅ 已登录，继续跳转
+        if (e.ctrlKey || e.metaKey) {
+          window.open(url, '_blank');
+        } else {
+          window.location.href = url;
+        }
+      } else {
+        // ❌ 未登录，跳转登录页，并携带回跳参数
+        window.location.href = `/login.html?redirect=${encodeURIComponent(url)}`;
+      }
+    } catch (err) {
+      window.location.href = `/login.html?redirect=${encodeURIComponent(url)}`;
+    }
+  });
+});
+
+
+console.log("📦 页面脚本开始执行");
+
+// ==================== 通用工具函数 ====================
+const createLoader = () => {
+  const loader = document.createElement('div');
+  loader.className = 'loader-wrapper';
+  loader.innerHTML = `
+    <dotlottie-player
+      src="https://lottie.host/fb830d54-2b6e-4dcd-aa54-e36bf8a54f63/8TG0RfkYmP.lottie"
+      background="transparent"
+      speed="1"
+      style="width: 80px; height: 80px; margin: auto;"
+      loop autoplay
+    ></dotlottie-player>
+  `;
+  return loader;
+};
+
+const showError = (container, error) => {
+  console.error(error);
+  container.innerHTML = `
+    <div class="error-message">
+      <p>加载失败</p>
+      <p>${error.message}</p>
+      <button onclick="location.reload()">重试</button>
+    </div>
+  `;
+};
+
+
+// ==================== 每日更新区域 ====================
+const initDailyUpdate = async () => {
+  const updateContainer = document.getElementById('daily-update');
+  if (!updateContainer) return;
+
+  const plyrContainer = document.getElementById('plyr-container');
+  const plyrVideo = document.getElementById('plyr-video');
+
+  // 遮罩层 DOM
+  const loadingOverlay = document.getElementById('loading-overlay');
+  const loadingImage = document.getElementById('loading-image');
+  const skipButton = document.getElementById('skip-loading');
+  const skipPercent = document.getElementById('skip-percent');
+
+  let player = null;
+
+  // ==================== Plyr 资源加载 ====================
+  const loadPlyrAssets = () => {
+    if (!document.querySelector('link[href*="plyr.css"]')) {
+      const plyrCSS = document.createElement('link');
+      plyrCSS.rel = 'stylesheet';
+      plyrCSS.href = 'https://cdn.plyr.io/3.7.8/plyr.css';
+      document.head.appendChild(plyrCSS);
+    }
+
+    return new Promise((resolve) => {
+      if (window.Plyr) return resolve();
+      const plyrJS = document.createElement('script');
+      plyrJS.src = 'https://cdn.plyr.io/3.7.8/plyr.js';
+      plyrJS.onload = () => resolve();
+      document.body.appendChild(plyrJS);
+    });
+  };
+
+  // ==================== Overlay 显示/隐藏 ====================
+  const showOverlay = (imgSrc) => {
+    loadingImage.src = imgSrc;
+    loadingOverlay.style.display = 'flex';
+    loadingOverlay.style.opacity = 1;
+    skipPercent.textContent = '0%';
+  };
+
+  const hideOverlay = () => {
+    loadingOverlay.style.opacity = 0;
+    setTimeout(() => {
+      loadingOverlay.style.display = 'none';
+    }, 500);
+  };
+
+  // ==================== 自动锁定横竖屏 ====================
+  const lockOrientation = () => {
+    if (!plyrVideo.videoWidth || !plyrVideo.videoHeight) return;
+
+    const isLandscape = plyrVideo.videoWidth > plyrVideo.videoHeight;
+    const mode = isLandscape ? "landscape" : "portrait";
+
+    if (screen.orientation && screen.orientation.lock) {
+      screen.orientation.lock(mode).catch(() => {
+        console.warn("屏幕方向锁定失败，可能浏览器不支持。");
+      });
+    }
+  };
+
+  try {
+    const response = await fetch('/api/feeds');
+    if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+    const data = await response.json();
+
+    const updates = data.filter(item => item.feedType === "dailyUpdate");
+    if (updates.length === 0) {
+      updateContainer.innerHTML = '<p class="empty-message"></p>';
+      return;
+    }
+
+    updateContainer.innerHTML = '';
+
+    updates.forEach(group => {
+      group.medias.forEach(media => {
+        const block = document.createElement('div');
+        block.className = 'media-block';
+
+        const mediaContent = document.createElement('div');
+        mediaContent.className = 'media-content';
+
+        if (media.type === 'video') {
+          const img = document.createElement('img');
+          img.src = group.thumbnail || media.url;
+          img.alt = group.title || '';
+          img.loading = 'lazy';
+          img.onerror = function () {
+            this.src =
+              'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">' +
+              '<rect width="100%" height="100%" fill="#000"/>' +
+              '<text x="50%" y="50%" fill="#fff" font-family="Arial" text-anchor="middle" dominant-baseline="middle">视频</text></svg>';
+          };
+
+          // 点击缩略图播放
+          img.addEventListener('click', async () => {
+            await loadPlyrAssets();
+
+            // 随机加载图
+            const randomIndex = Math.floor(Math.random() * 53) + 1;
+            showOverlay(`/TPK/tpk${randomIndex}.jpg`);
+
+            plyrContainer.style.display = 'flex';
+            plyrVideo.src = media.url;
+
+if (!player) {
+  player = new Plyr(plyrVideo, {
+    controls: ['play-large', 'play', 'progress', 'current-time', 'duration', 'fullscreen']
+  });
+
+  // 监听进入全屏 → 自动锁定横竖屏
+  player.on('enterfullscreen', lockOrientation);
+
+  // 退出全屏 → 解锁屏幕方向
+  player.on('exitfullscreen', () => {
+    if (screen.orientation && screen.orientation.unlock) {
+      screen.orientation.unlock();
+    }
+  });
+
+  // ✅ 关闭按钮（只创建一次）
+  if (!player.elements.controls.querySelector('.close-btn')) {
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'plyr__control close-btn';
+    closeBtn.textContent = '✖';
+    closeBtn.title = '关闭视频';
+    closeBtn.type = 'button';
+
+    closeBtn.addEventListener('click', () => {
+      // ✅ 退出全屏防卡死
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
+
+      player.stop();
+      plyrContainer.style.display = 'none';
+      plyrVideo.src = '';
+      hideOverlay();
+    });
+
+    player.elements.controls.appendChild(closeBtn);
+  }
+}
+
+
+            // 缓冲进度
+            let progressTimer = setInterval(() => {
+              if (plyrVideo.buffered.length > 0 && plyrVideo.duration > 0) {
+                const bufferedEnd = plyrVideo.buffered.end(plyrVideo.buffered.length - 1);
+                const percent = Math.min((bufferedEnd / plyrVideo.duration) * 100, 100).toFixed(0);
+                skipPercent.textContent = `${percent}%`;
+
+                if (percent >= 90) {
+                  clearInterval(progressTimer);
+                  hideOverlay();
+                  player.play();
+                }
+              }
+            }, 300);
+
+            skipButton.onclick = () => {
+              clearInterval(progressTimer);
+              hideOverlay();
+              player.play();
+            };
+          });
+
+          mediaContent.appendChild(img);
+        } else {
+          const img = document.createElement('img');
+          img.src = media.url;
+          img.alt = group.title || '';
+          img.loading = 'lazy';
+          mediaContent.appendChild(img);
+        }
+
+        const title = document.createElement('div');
+        title.className = 'media-title';
+        title.textContent = group.title || '无标题';
+
+        block.appendChild(mediaContent);
+        block.appendChild(title);
+        updateContainer.appendChild(block);
+      });
+    });
+
+  } catch (error) {
+    updateContainer.innerHTML = `<p class="error-message">加载失败: ${error.message}</p>`;
+  }
+};
+
+document.addEventListener('DOMContentLoaded', initDailyUpdate);
+
+
+
+
+
+// ==================== 每日吃瓜区域 ====================
+const initDailyGossip = async () => {
+  const container = document.getElementById('daily-gossip');
+  if (!container) return console.error("❌ 没有找到 #daily-gossip 容器");
+
+  const loader = createLoader();
+  container.innerHTML = '';
+  container.appendChild(loader);
+
+  try {
+    const response = await fetch('/api/feeds');
+    if (!response.ok) throw new Error(`请求失败: ${response.status}`);
+    const data = await response.json();
+    container.removeChild(loader);
+
+    const rawGossip = data.filter(item => item.feedType === "dailyGossip");
+    const groupedData = {};
+    rawGossip.forEach(item => {
+      const groupId = item.media_group_id || item._id;
+      if (!groupedData[groupId]) {
+        groupedData[groupId] = {
+          title: item.title || '无标题',
+          thumbnail: item.thumbnail,
+          medias: []
+        };
+      }
+      if (item.medias && Array.isArray(item.medias)) {
+        groupedData[groupId].medias.push(...item.medias);
+      }
+    });
+
+    const groups = Object.values(groupedData).slice(0, 10);
+
+    let swipeLock = false;
+
+    groups.forEach((group) => {
+      const block = document.createElement('div');
+      block.className = 'gossip-group';
+
+      const title = document.createElement('h3');
+      title.textContent = group.title;
+      block.appendChild(title);
+
+      const stackedContainer = document.createElement('div');
+      stackedContainer.className = 'stacked-media';
+
+      const medias = group.medias.slice(0, 10);
+      let currentActiveIndex = 0;
+      let startX = 0;
+      let isDragging = false;
+
+
+
+medias.forEach((media, index) => {
+  const mediaElement = document.createElement('div');
+  mediaElement.className = 'stacked-item';
+  mediaElement.dataset.index = index;
+
+  // 🔍 打印每个媒体的详细信息，方便定位问题
+  console.log(`🎞 [渲染媒体 #${index}]`, {
+    type: media.type,
+    url: media.url,
+    thumbnail: media.thumbnail,
+    thumb_file_id: media.thumb_file_id,
+    groupThumb: group.thumbnail
+  });
+
+  let thumbUrl = null;
+  if (media.thumbnail) {
+    thumbUrl = media.thumbnail;
+  } else if (media.type === 'video' && media.thumb_file_id) {
+    thumbUrl = `/file/${media.thumb_file_id}`;
+  } else if (media.type === 'photo') {
+    thumbUrl = media.url;
+  } else {
+    thumbUrl = group.thumbnail;
+  }
+
+  // 🚀 记录最终选择结果
+  console.log(`🖼️ [媒体 #${index}] 最终缩略图:`, thumbUrl);
+
+  const img = document.createElement('img');
+  img.src = thumbUrl;
+  img.alt = group.title || '';
+  img.style.cssText = `
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+  `;
+
+  img.onerror = function () {
+    console.warn(`⚠️ 缩略图加载失败 (媒体 #${index}):`, this.src);
+    this.src = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect width='100%' height='100%' fill='%23${media.type === 'video' ? '000000' : 'f0f0f0'}'/%3E%3Ctext x='50%' y='50%' fill='%23${media.type === 'video' ? 'ffffff' : '999999'}' font-family='Arial' text-anchor='middle' dominant-baseline='middle'%3E${encodeURIComponent(media.type === 'video' ? '视频' : '图片')}%3C/text%3E%3C/svg%3E`;
+  };
+
+  // --- 全屏预览逻辑 ---
+  mediaElement.addEventListener('click', (e) => {
+    if (isDragging) return;
+
+    const prev = document.querySelector('.media-fullscreen');
+    if (prev) prev.remove();
+
+    const fullscreen = document.createElement('div');
+    fullscreen.className = 'media-fullscreen';
+
+    const mediaContent = document.createElement('div');
+    mediaContent.className = 'media-content';
+    Object.assign(mediaContent.style, {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%',
+      height: '100%',
+    });
+
+    const mediaInner = document.createElement('div');
+    mediaInner.className = 'media-inner';
+    Object.assign(mediaInner.style, {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      maxWidth: '100%',
+      maxHeight: '100%',
+    });
+
+    let fsIndex = currentActiveIndex;
+
+    const renderFullscreenMedia = (index) => {
+      mediaInner.innerHTML = '';
+      const m = medias[index];
+      console.log(`🧭 全屏查看媒体 #${index}:`, m);
+      if (m.type === 'video') {
+        const video = document.createElement('video');
+        video.src = m.url;
+        video.controls = true;
+        video.autoplay = true;
+        Object.assign(video.style, {
+          maxWidth: '100vw',
+          maxHeight: '100vh',
+          objectFit: 'contain',
+        });
+        mediaInner.appendChild(video);
+      } else {
+        const fullImg = document.createElement('img');
+        fullImg.src = m.url;
+        Object.assign(fullImg.style, {
+          maxWidth: '100vw',
+          maxHeight: '100vh',
+          objectFit: 'contain',
+        });
+        mediaInner.appendChild(fullImg);
+      }
+    };
+
+    const isPinching = (ev) => ev.touches && ev.touches.length > 1;
+    const bindSwipe = (target) => {
+      let startX2 = 0;
+      let dragging2 = false;
+      target.addEventListener('touchstart', (e) => {
+        if (isPinching(e)) return;
+        startX2 = e.touches[0].clientX;
+        dragging2 = false;
+      });
+      target.addEventListener('touchmove', (e) => {
+        if (isPinching(e)) return;
+        if (Math.abs(e.touches[0].clientX - startX2) > 10) dragging2 = true;
+      });
+      target.addEventListener('touchend', (e) => {
+        if (isPinching(e) || !dragging2) return;
+        if (swipeLock) return;
+        swipeLock = true;
+        const diff = e.changedTouches[0].clientX - startX2;
+        if (diff > 50 && fsIndex > 0) {
+          fsIndex--;
+          renderFullscreenMedia(fsIndex);
+        } else if (diff < -50 && fsIndex < medias.length - 1) {
+          fsIndex++;
+          renderFullscreenMedia(fsIndex);
+        }
+        setTimeout(() => (swipeLock = false), 300);
+      });
+
+      target.addEventListener('mousedown', (e) => {
+        startX2 = e.clientX;
+        dragging2 = false;
+      });
+      target.addEventListener('mousemove', (e) => {
+        if (Math.abs(e.clientX - startX2) > 10) dragging2 = true;
+      });
+      target.addEventListener('mouseup', (e) => {
+        if (!dragging2) return;
+        if (swipeLock) return;
+        swipeLock = true;
+        const diff = e.clientX - startX2;
+        if (diff > 50 && fsIndex > 0) {
+          fsIndex--;
+          renderFullscreenMedia(fsIndex);
+        } else if (diff < -50 && fsIndex < medias.length - 1) {
+          fsIndex++;
+          renderFullscreenMedia(fsIndex);
+        }
+        setTimeout(() => (swipeLock = false), 300);
+      });
+    };
+    bindSwipe(mediaInner);
+    bindSwipe(mediaContent);
+
+    renderFullscreenMedia(fsIndex);
+
+    const handleClickExit = (ev) => {
+      if (isDragging) return;
+      if (isPinching(ev)) return;
+      fullscreen.remove();
+    };
+    mediaInner.addEventListener('click', handleClickExit);
+    mediaContent.addEventListener('click', handleClickExit);
+
+    fullscreen.appendChild(mediaContent);
+    mediaContent.appendChild(mediaInner);
+    document.body.appendChild(fullscreen);
+
+    const keyHandler = (ev) => {
+      if (!document.body.contains(fullscreen)) {
+        window.removeEventListener('keydown', keyHandler);
+        return;
+      }
+      if (ev.key === 'Escape') fullscreen.remove();
+      if (ev.key === 'ArrowLeft' && fsIndex > 0) {
+        fsIndex--;
+        renderFullscreenMedia(fsIndex);
+      }
+      if (ev.key === 'ArrowRight' && fsIndex < medias.length - 1) {
+        fsIndex++;
+        renderFullscreenMedia(fsIndex);
+      }
+    };
+    window.addEventListener('keydown', keyHandler);
+  });
+
+  mediaElement.appendChild(img);
+
+  if (media.type === 'video') {
+    const playIcon = document.createElement('div');
+    playIcon.className = 'video-play-icon';
+    playIcon.textContent = '▶';
+    mediaElement.appendChild(playIcon);
+  }
+
+  stackedContainer.appendChild(mediaElement);
+});
+
+
+      const updateActiveItem = (newIndex) => {
+        newIndex = (newIndex + medias.length) % medias.length;
+        currentActiveIndex = newIndex;
+        stackedContainer.querySelectorAll('.stacked-item').forEach((item, i) => {
+          const isActive = i === currentActiveIndex;
+          item.style.cssText = `
+            top:${isActive ? 0 : i * 5}%;
+            left:${isActive ? 0 : i * 5}%;
+            z-index:${isActive ? 100 : 10 - i};
+            opacity:${isActive ? 1 : Math.max(0, 1 - i * 0.1)};
+            transform:${isActive ? 'scale(1.05)' : 'scale(1)'};
+            transition:all .3s ease;
+          `;
+        });
+      };
+
+      const handleSwipe = (diffX) => {
+        if (swipeLock) return;
+        swipeLock = true;
+        if (diffX > 50) updateActiveItem(currentActiveIndex - 1);
+        else if (diffX < -50) updateActiveItem(currentActiveIndex + 1);
+        setTimeout(() => swipeLock = false, 300);
+      };
+
+      stackedContainer.addEventListener('touchstart', e => { startX = e.touches[0].clientX; isDragging = false; });
+      stackedContainer.addEventListener('touchmove', e => { if (Math.abs(e.touches[0].clientX - startX) > 10) isDragging = true; });
+      stackedContainer.addEventListener('touchend', e => { if (isDragging) handleSwipe(e.changedTouches[0].clientX - startX); });
+      stackedContainer.addEventListener('mousedown', e => { startX = e.clientX; isDragging = false; });
+      stackedContainer.addEventListener('mousemove', e => { if (Math.abs(e.clientX - startX) > 10) isDragging = true; });
+      stackedContainer.addEventListener('mouseup', e => { if (isDragging) handleSwipe(e.clientX - startX); });
+
+      updateActiveItem(0);
+      block.appendChild(stackedContainer);
+      container.appendChild(block);
+    });
+
+  } catch (err) {
+    showError(container, err);
+  }
+};
+
+
+
+
+// ==================== 每日优选区域 ====================
+const initDailyPremium = async () => {
+  const container = document.querySelector('.daily-premium');
+  if (!container) return;
+
+  try {
+    // 清空示例内容
+    container.innerHTML = '';
+    
+    // 获取数据
+    const response = await fetch('/api/feeds');
+    const data = await response.json();
+    
+    // 筛选并限制5条
+    const items = data.filter(item => item.feedType === "dailyBest").slice(0, 5);
+    
+    // 渲染区块
+    items.forEach((item, index) => {
+      const block = document.createElement('div');
+      block.className = `premium-block ${index === 0 ? 'large' : ''}`;
+      
+      // 如果有媒体则显示第一个媒体
+      if (item.medias?.length > 0) {
+        const media = item.medias[0];
+        const mediaElement = document.createElement(media.type === 'video' ? 'video' : 'img');
+        mediaElement.src = media.url;
+        mediaElement.style.width = '100%';
+        mediaElement.style.height = '100%';
+        mediaElement.style.objectFit = 'cover';
+        mediaElement.style.borderRadius = '10px';
+        block.appendChild(mediaElement);
+      } 
+      // 没有媒体则显示标题
+      else {
+        block.textContent = item.title || `优选内容 ${index + 1}`;
+      }
+      
+      // 点击全屏功能
+      block.addEventListener('click', () => {
+        if (item.medias?.length > 0) {
+          toggleFullscreen(item.medias[0]);
+        }
+      });
+      
+      container.appendChild(block);
+    });
+
+  } catch (error) {
+    container.innerHTML = '<div class="premium-block large">加载失败</div>';
+  }
+};
+
+// 全屏切换函数
+const toggleFullscreen = (media) => {
+  const existing = document.querySelector('.media-fullscreen');
+  if (existing) {
+    document.body.removeChild(existing);
+    return;
+  }
+  
+  const fullscreen = document.createElement('div');
+  fullscreen.className = 'media-fullscreen';
+  
+  const mediaElement = document.createElement(media.type === 'video' ? 'video' : 'img');
+  mediaElement.src = media.url;
+  mediaElement.className = 'fullscreen-media';
+  if (media.type === 'video') {
+    mediaElement.controls = true;
+    mediaElement.autoplay = true;
+  }
+  
+  fullscreen.appendChild(mediaElement);
+  fullscreen.onclick = () => document.body.removeChild(fullscreen);
+  document.body.appendChild(fullscreen);
+};
+
+// 初始化
+document.addEventListener('DOMContentLoaded', initDailyPremium);
+
+
+
+
+// ==================== 初始化所有区域 ====================
+document.addEventListener('DOMContentLoaded', () => {
+  console.log("🏁 DOM已加载，开始初始化");
+  initDailyUpdate();
+  initDailyGossip();
+});
+
+
+/*-----------  加载动画  ------------*/
+// 确保Lottie播放器加载
+if (!window.loadLottiePlayer) {
+  window.loadLottiePlayer = () => {
+    const script = document.createElement('script');
+    script.src = 'https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js';
+    document.body.appendChild(script);
+  };
+}
+window.loadLottiePlayer();
+
+
+
+
+
+/*--------- 监听用户访问 --------*/
+  fetch('/api/activity/ping', {
+    method: 'POST',
+    credentials: 'include', // 带 cookie
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      path: window.location.pathname,
+      referrer: document.referrer || null,
+      ts: Date.now(),
+    })
+  });
+
+
+  </script>
+  <script
+  src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"
+  type="module"
+></script>
+
+<script src="/heartbeat.js"></script>
+</body>
+</html>
+
+
+
+

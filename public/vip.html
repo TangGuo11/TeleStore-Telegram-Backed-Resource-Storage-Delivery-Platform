@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>暖橙导航 | 竖向卡片优雅滑屏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(145deg, #fef7e6 0%, #fce9ce 100%);
+            font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, -apple-system, 'Roboto', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .scroll-container {
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0,0,0,0.2) rgba(0,0,0,0.05);
+        }
+
+        .scroll-container::-webkit-scrollbar {
+            width: 5px;
+        }
+        .scroll-container::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.03);
+            border-radius: 10px;
+            margin: 8px 0;
+        }
+        .scroll-container::-webkit-scrollbar-thumb {
+            background: rgba(100, 70, 40, 0.3);
+            border-radius: 10px;
+        }
+        .scroll-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(80, 55, 30, 0.5);
+        }
+
+        .card-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 28px;
+            padding: 32px 0 48px 0;
+            width: 100%;
+        }
+
+        .nav-card {
+            width: 68%;
+            height: 75vh;
+            min-height: 380px;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            background-color: #f9e5cf;
+            box-shadow: 0 20px 35px -12px rgba(80, 45, 20, 0.25), 
+                        0 0 0 1px rgba(255,245,225,0.6) inset;
+            transition: transform 0.25s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 30px 45px -14px rgba(70, 40, 15, 0.35);
+        }
+
+        .card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1), filter 0.4s;
+            z-index: 1;
+        }
+
+        .card-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 35%;
+            background: linear-gradient(to top, rgba(0,0,0,0.3) 5%, rgba(0,0,0,0.05) 60%, transparent 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .button-wrapper {
+            position: absolute;
+            bottom: 16px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            padding: 0 20px;
+        }
+
+        .nav-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 248, 235, 0.94);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 170, 0.8);
+            border-radius: 60px;
+            padding: 12px 32px;
+            min-width: 170px;
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            color: #6b3f1c;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            box-shadow: 0 8px 18px rgba(110, 60, 20, 0.15);
+            font-family: inherit;
+            gap: 8px;
+        }
+
+        .nav-btn::before {
+            content: "✦";
+            font-size: 1rem;
+            opacity: 0.8;
+            transition: transform 0.2s;
+            color: #d9822b;
+        }
+
+        .nav-btn span {
+            font-weight: 600;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 245, 230, 1);
+            transform: scale(1.02);
+            box-shadow: 0 12px 24px rgba(90, 50, 20, 0.2);
+            border-color: #f9bc7c;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-text {
+            display: inline-block;
+        }
+
+        @media (max-width: 720px) {
+            .nav-card {
+                width: 68%;
+                border-radius: 18px;
+            }
+            .nav-btn {
+                padding: 10px 22px;
+                min-width: 140px;
+                font-size: 0.9rem;
+            }
+            .button-wrapper {
+                bottom: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-btn {
+                padding: 8px 20px;
+                min-width: 130px;
+                font-size: 0.85rem;
+            }
+            .button-wrapper {
+                bottom: 12px;
+            }
+            .nav-card {
+                border-radius: 16px;
+            }
+        }
+
+        .nav-card {
+            animation: fadeSlideUp 0.5s ease-out backwards;
+        }
+        .nav-card:nth-child(1) { animation-delay: 0.05s; }
+        .nav-card:nth-child(2) { animation-delay: 0.10s; }
+        .nav-card:nth-child(3) { animation-delay: 0.15s; }
+        .nav-card:nth-child(4) { animation-delay: 0.20s; }
+        .nav-card:nth-child(5) { animation-delay: 0.25s; }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav-card:hover .card-bg {
+            transform: scale(1.02);
+            filter: brightness(1.01);
+        }
+    </style>
+</head>
+<body>
+<div class="scroll-container">
+    <div class="card-list">
+        <div class="nav-card" data-card-index="1">
+            <div class="card-bg" style="background-image: url('/TPK/VIP1.jpg');"></div>
+            <div class="card-overlay"></div>
+            <div class="button-wrapper">
+                <button class="nav-btn" data-id="btn1">
+                    <span class="btn-text">分类内容1</span>
+                </button>
+            </div>
+        </div>
+        <div class="nav-card" data-card-index="2">
+            <div class="card-bg" style="background-image: url('/TPK/VIP2.jpg');"></div>
+            <div class="card-overlay"></div>
+            <div class="button-wrapper">
+                <button class="nav-btn" data-id="btn2">
+                    <span class="btn-text">分类内容2</span>
+                </button>
+            </div>
+        </div>
+        <div class="nav-card" data-card-index="3">
+            <div class="card-bg" style="background-image: url('/TPK/VIP3.jpg');"></div>
+            <div class="card-overlay"></div>
+            <div class="button-wrapper">
+                <button class="nav-btn" data-id="btn3">
+                    <span class="btn-text">分类内容3</span>
+                </button>
+            </div>
+        </div>
+        <div class="nav-card" data-card-index="4">
+            <div class="card-bg" style="background-image: url('/TPK/VIP4.jpg');"></div>
+            <div class="card-overlay"></div>
+            <div class="button-wrapper">
+                <button class="nav-btn" data-id="btn4">
+                    <span class="btn-text">分类内容4</span>
+                </button>
+            </div>
+        </div>
+        <div class="nav-card" data-card-index="5">
+            <div class="card-bg" style="background-image: url('/TPK/VIP5.jpg');"></div>
+            <div class="card-overlay"></div>
+            <div class="button-wrapper">
+                <button class="nav-btn" data-id="btn5">
+                    <span class="btn-text">分类内容5</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const cards = document.querySelectorAll('.nav-card');
+        
+        const cardConfig = [
+            { bgUrl: '/TPK/VIP1.jpg', buttonText: "分类内容1" },
+            { bgUrl: '/TPK/VIP2.jpg', buttonText: "分类内容2" },
+            { bgUrl: '/TPK/VIP3.jpg', buttonText: "分类内容3" },
+            { bgUrl: '/TPK/VIP4.jpg', buttonText: "分类内容4" },
+            { bgUrl: '/TPK/VIP5.jpg', buttonText: "分类内容5" }
+        ];
+        
+        function updateCard(index, bgUrl, newButtonText) {
+            if (index < 0 || index >= cards.length) {
+                console.warn(`卡片索引 ${index} 无效`);
+                return false;
+            }
+            const card = cards[index];
+            const bgDiv = card.querySelector('.card-bg');
+            const btnSpan = card.querySelector('.btn-text');
+            
+            if (bgDiv && bgUrl !== undefined) {
+                bgDiv.style.backgroundImage = `url('${bgUrl}')`;
+                cardConfig[index].bgUrl = bgUrl;
+            }
+            if (btnSpan && newButtonText !== undefined) {
+                btnSpan.innerText = newButtonText;
+                cardConfig[index].buttonText = newButtonText;
+            }
+            return true;
+        }
+        
+        function setAllBackgrounds(bgUrlArray) {
+            if (!bgUrlArray || bgUrlArray.length !== cards.length) {
+                console.error(`请传入长度${cards.length}的背景图片URL数组`);
+                return;
+            }
+            for (let i = 0; i < cards.length; i++) {
+                const bgDiv = cards[i].querySelector('.card-bg');
+                if (bgDiv && bgUrlArray[i]) {
+                    bgDiv.style.backgroundImage = `url('${bgUrlArray[i]}')`;
+                    cardConfig[i].bgUrl = bgUrlArray[i];
+                }
+            }
+        }
+        
+        function setAllButtonTexts(textArray) {
+            if (!textArray || textArray.length !== cards.length) {
+                console.error(`请传入长度${cards.length}的按钮文案数组`);
+                return;
+            }
+            for (let i = 0; i < cards.length; i++) {
+                const btnSpan = cards[i].querySelector('.btn-text');
+                if (btnSpan && textArray[i]) {
+                    btnSpan.innerText = textArray[i];
+                    cardConfig[i].buttonText = textArray[i];
+                }
+            }
+        }
+        
+        function bindButtonClick(callback) {
+            const btns = document.querySelectorAll('.nav-btn');
+            btns.forEach((btn, idx) => {
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                newBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (callback && typeof callback === 'function') {
+                        callback(idx, newBtn, cards[idx]);
+                    } else {
+                        const btnText = newBtn.querySelector('.btn-text')?.innerText || '按钮';
+                        console.log(`[导航] 点击卡片${idx+1} 按钮: ${btnText}`);
+                        const toast = document.createElement('div');
+                        toast.innerText = `✨ ${btnText} ✨`;
+                        toast.style.position = 'fixed';
+                        toast.style.bottom = '25px';
+                        toast.style.left = '50%';
+                        toast.style.transform = 'translateX(-50%)';
+                        toast.style.backgroundColor = 'rgba(245, 190, 110, 0.9)';
+                        toast.style.backdropFilter = 'blur(12px)';
+                        toast.style.color = '#4a2a10';
+                        toast.style.padding = '10px 24px';
+                        toast.style.borderRadius = '50px';
+                        toast.style.fontSize = '0.85rem';
+                        toast.style.fontWeight = '500';
+                        toast.style.zIndex = '9999';
+                        toast.style.pointerEvents = 'none';
+                        toast.style.fontFamily = 'inherit';
+                        toast.style.boxShadow = '0 6px 14px rgba(0,0,0,0.1)';
+                        document.body.appendChild(toast);
+                        setTimeout(() => toast.remove(), 1500);
+                    }
+                });
+            });
+            return document.querySelectorAll('.nav-btn');
+        }
+        
+        window.NavManager = {
+            setCard: (index, bgUrl, text) => updateCard(index, bgUrl, text),
+            setAllBackgrounds: (bgUrlArray) => setAllBackgrounds(bgUrlArray),
+            setAllButtonTexts: (textArray) => setAllButtonTexts(textArray),
+            setCardBg: (index, bgUrl) => updateCard(index, bgUrl, undefined),
+            setCardText: (index, newText) => updateCard(index, undefined, newText),
+            getConfig: () => [...cardConfig],
+            getCards: () => document.querySelectorAll('.nav-card'),
+            bindButtonClick: bindButtonClick
+        };
+        
+        bindButtonClick((index) => {
+            window.location.href = `/vip${index + 1}.html`;
+        });
+        
+    })();
+</script>
+</body>
+</html>
