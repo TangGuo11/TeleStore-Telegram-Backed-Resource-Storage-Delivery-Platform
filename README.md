@@ -330,7 +330,7 @@ The exact structure may vary depending on the deployment version.
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/telestore.git
+git clone https://github.com/TangGuo11/TeleStore-Telegram-Backed-Resource-Storage-Delivery-Platform.git/telestore.git
 
 cd telestore
 ```
